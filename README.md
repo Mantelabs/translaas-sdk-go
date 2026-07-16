@@ -6,7 +6,7 @@ Part of the [translaas-all](https://github.com/acuencadev/translaas-all) umbrell
 
 ## Status
 
-Early development. The `models` package (DTOs, errors, request context) is implemented; HTTP client work is next. Track progress via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and milestones **M0–M5**.
+Early development. The `models` package (DTOs, errors, request context), `internal/httpx` (URL/query helpers), and `client.GetEntry` are implemented; remaining client methods are next. Track progress via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and milestones **M0–M5**.
 
 ## Implementation plan
 
