@@ -26,8 +26,9 @@ make tidy test lint
 | `web/` | Optional framework integrations |
 | `internal/httpx` | URL/query helpers (internal) |
 | `internal/validate` | Options validation (internal) |
-| `examples/` | Runnable samples |
 | `testdata/` | Golden JSON fixtures |
+
+Runnable sample apps live in **[translaas-sdk-examples](https://github.com/acuencadev/translaas-sdk-examples)** (`go/`), not in this repository.
 
 See the [implementation plan](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-go-implementation.md) for the full roadmap.
 

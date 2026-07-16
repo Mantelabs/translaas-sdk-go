@@ -1,4 +1,4 @@
-.PHONY: help tidy fmt vet lint test test-race coverage build example clean
+.PHONY: help tidy fmt vet lint test test-race coverage build clean
 
 GO ?= go
 GOLANGCI_LINT ?= golangci-lint
@@ -14,8 +14,9 @@ help:
 	@echo "  make test-race  Run tests with -race (requires CGO)"
 	@echo "  make coverage   Run tests with coverage report"
 	@echo "  make build      Build all packages"
-	@echo "  make example    Build examples/basic"
 	@echo "  make clean      Remove coverage artifacts"
+	@echo ""
+	@echo "Runnable samples: https://github.com/acuencadev/translaas-sdk-examples (go/)"
 
 tidy:
 	$(GO) mod tidy
@@ -42,9 +43,6 @@ coverage:
 
 build:
 	$(GO) build ./...
-
-example:
-	$(GO) build -o bin/basic ./examples/basic
 
 clean:
 	rm -f coverage.out

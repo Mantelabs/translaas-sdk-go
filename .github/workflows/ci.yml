@@ -98,6 +98,3 @@ jobs:
 
       - name: Build packages
         run: go build ./...
-
-      - name: Build example
-        run: go build -o basic${{ runner.os == 'Windows' && '.exe' || '' }} ./examples/basic

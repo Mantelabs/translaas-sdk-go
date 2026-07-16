@@ -10,3 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Repository foundation: module layout, CI, linting, Makefile, and contributor docs.
+- `models` package: DTOs, typed errors, request context, translation payloads, and golden test fixtures.
+- Documented that runnable samples belong in [translaas-sdk-examples](https://github.com/acuencadev/translaas-sdk-examples) (`go/`), not in this library repo.
+
+### Removed
+
+- In-repo `examples/basic` placeholder (use translaas-sdk-examples instead).

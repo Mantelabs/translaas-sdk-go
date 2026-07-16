@@ -6,7 +6,7 @@ Part of the [translaas-all](https://github.com/acuencadev/translaas-all) umbrell
 
 ## Status
 
-Early development. Track progress via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and milestones **M0–M5**.
+Early development. The `models` package (DTOs, errors, request context) is implemented; HTTP client work is next. Track progress via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and milestones **M0–M5**.
 
 ## Implementation plan
 
@@ -34,8 +34,9 @@ go get github.com/acuencadev/translaas-sdk-go@latest
 make help          # list targets
 make tidy test lint
 make coverage      # local coverage report
-make example       # build examples/basic
 ```
+
+Runnable samples: **[translaas-sdk-examples](https://github.com/acuencadev/translaas-sdk-examples)** (`go/`).
 
 ### CI
 
@@ -43,7 +44,7 @@ GitHub Actions runs on every push/PR to `main`:
 
 - `golangci-lint`
 - `go vet`, `go test` (with `-race` on Linux)
-- `go build` for all packages and `examples/basic`
+- `go build` for all library packages
 - Matrix: **Ubuntu** and **Windows**
 
 ## Package layout
@@ -55,8 +56,10 @@ client/       HTTP client
 cachefile/    Offline disk cache
 service/      Convenience API
 internal/     Non-exported helpers
-examples/     Sample programs
+testdata/     Golden JSON fixtures for unit tests
 ```
+
+Sample apps: [translaas-sdk-examples/go](https://github.com/acuencadev/translaas-sdk-examples/tree/main/go).
 
 ## Contributing
 
