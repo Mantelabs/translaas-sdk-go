@@ -34,8 +34,9 @@ go get github.com/acuencadev/translaas-sdk-go@latest
 make help          # list targets
 make tidy test lint
 make coverage      # local coverage report
-make example       # build examples/basic
 ```
+
+Runnable samples: **[translaas-sdk-examples](https://github.com/acuencadev/translaas-sdk-examples)** (`go/`).
 
 ### CI
 
@@ -43,7 +44,7 @@ GitHub Actions runs on every push/PR to `main`:
 
 - `golangci-lint`
 - `go vet`, `go test` (with `-race` on Linux)
-- `go build` for all packages and `examples/basic`
+- `go build` for all library packages
 - Matrix: **Ubuntu** and **Windows**
 
 ## Package layout
@@ -55,8 +56,10 @@ client/       HTTP client
 cachefile/    Offline disk cache
 service/      Convenience API
 internal/     Non-exported helpers
-examples/     Sample programs
+testdata/     Golden JSON fixtures for unit tests
 ```
+
+Sample apps: [translaas-sdk-examples/go](https://github.com/acuencadev/translaas-sdk-examples/tree/main/go).
 
 ## Contributing
 
