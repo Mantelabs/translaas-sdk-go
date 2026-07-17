@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -134,92 +133,4 @@ func (c *client) buildTextRequest(
 		httpReq.Header.Set("If-None-Match", reqCtx.IfNoneMatch)
 	}
 	return httpReq, nil
-}
-
-func applyTextContext(req *models.GetTranslationRequest, ctx *models.RequestContext, defaultProjectID string) {
-	if ctx != nil {
-		if ctx.Project != "" {
-			req.Project = ctx.Project
-		}
-		if ctx.Channel != "" {
-			req.Channel = ctx.Channel
-		}
-		if ctx.Version != "" {
-			req.Version = ctx.Version
-		}
-	}
-	if req.Project == "" && defaultProjectID != "" {
-		req.Project = defaultProjectID
-	}
-}
-
-func assignResponseContext(resp *http.Response, ctx *models.RequestContext, notModified bool) {
-	if ctx == nil {
-		return
-	}
-	ctx.NotModified = notModified
-	if etag := resp.Header.Get("ETag"); etag != "" {
-		ctx.ResponseETag = etag
-	}
-}
-
-func handleAPIError(statusCode int, body []byte) error {
-	content := string(body)
-	fallback := fmt.Sprintf("API request failed with status code %d.", statusCode)
-
-	apiErr := &models.APIError{
-		StatusCode:      statusCode,
-		Message:         fallback,
-		ResponseContent: content,
-	}
-
-	parsed, err := models.ParseTranslaasError(body)
-	if err == nil && parsed != nil {
-		apiErr.Message = parsed.FormatMessage(fallback)
-		apiErr.Code = parsed.Code
-	}
-	return apiErr
-}
-
-func (c *client) mapTransportError(ctx context.Context, err error) error {
-	if errors.Is(err, context.Canceled) {
-		return err
-	}
-	if ctx.Err() != nil {
-		return ctx.Err()
-	}
-	if errors.Is(err, context.DeadlineExceeded) || isTimeoutError(err) {
-		seconds := c.timeout.Seconds()
-		return &models.APIError{
-			StatusCode: http.StatusRequestTimeout,
-			Message:    fmt.Sprintf("Request timed out after %g seconds.", seconds),
-		}
-	}
-	return &models.APIError{
-		StatusCode: http.StatusBadRequest,
-		Message:    fmt.Sprintf("Failed to retrieve translation: %s", err.Error()),
-	}
-}
-
-func isTimeoutError(err error) bool {
-	if errors.Is(err, context.DeadlineExceeded) {
-		return true
-	}
-	var urlErr *url.Error
-	if errors.As(err, &urlErr) && urlErr.Timeout() {
-		return true
-	}
-	msg := strings.ToLower(err.Error())
-	return strings.Contains(msg, "timeout") || strings.Contains(msg, "deadline exceeded")
-}
-
-func copyStringMap(src map[string]string) map[string]string {
-	if len(src) == 0 {
-		return make(map[string]string)
-	}
-	dst := make(map[string]string, len(src))
-	for k, v := range src {
-		dst[k] = v
-	}
-	return dst
 }
