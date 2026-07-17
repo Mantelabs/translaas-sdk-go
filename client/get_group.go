@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/acuencadev/translaas-sdk-go/cache"
 	"github.com/acuencadev/translaas-sdk-go/models"
 )
 
@@ -56,6 +58,16 @@ func (c *client) GetGroup(ctx context.Context, project, group, lang string, opts
 	}
 	applySnapshotContext(&reqModel.Channel, &reqModel.Version, &reqModel.IncludeContext, cfg.requestContext)
 
+	channel, version := snapshotChannelVersion(cfg.requestContext)
+	includeContext := snapshotIncludeContext(cfg.requestContext)
+	cacheKey := cache.GroupKey(project, group, lang, cfg.format, channel, version, includeContext)
+
+	if c.cachingEnabled("group") {
+		if cached, ok := c.tryCacheGetGroup(ctx, cacheKey); ok {
+			return cached, nil
+		}
+	}
+
 	httpReq, err := c.buildGETRequest(ctx, sdkTranslationsPrefix+"/group", reqModel, "application/json", cfg.requestContext)
 	if err != nil {
 		return nil, err
@@ -67,11 +79,33 @@ func (c *client) GetGroup(ctx context.Context, project, group, lang string, opts
 	defer func() { _ = resp.Body.Close() }()
 
 	dest := &models.TranslationGroup{}
-	result, err := handleJSONGETStatus(resp, cfg.requestContext, dest, func() any {
-		return emptyTranslationGroup()
-	})
-	if err != nil {
-		return nil, err
+	switch resp.StatusCode {
+	case http.StatusOK:
+		assignResponseContext(resp, cfg.requestContext, false)
+		body, err := readResponseBody(resp)
+		if err != nil {
+			return nil, err
+		}
+		if err := decodeJSONBody(body, dest); err != nil {
+			return nil, err
+		}
+		if c.cachingEnabled("group") {
+			c.cacheSetGroup(ctx, cacheKey, dest)
+		}
+		return dest, nil
+	case http.StatusNoContent:
+		assignResponseContext(resp, cfg.requestContext, false)
+		return emptyTranslationGroup(), nil
+	case http.StatusNotModified:
+		assignResponseContext(resp, cfg.requestContext, true)
+		if c.cacheProvider != nil {
+			if cached, ok := c.tryCacheGetGroup(ctx, cacheKey); ok {
+				return cached, nil
+			}
+		}
+		return emptyTranslationGroup(), nil
+	default:
+		body, _ := readResponseBody(resp)
+		return nil, handleAPIError(resp.StatusCode, body)
 	}
-	return result.(*models.TranslationGroup), nil
 }

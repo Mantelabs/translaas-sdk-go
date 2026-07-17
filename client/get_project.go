@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/acuencadev/translaas-sdk-go/cache"
 	"github.com/acuencadev/translaas-sdk-go/models"
 )
 
@@ -52,6 +54,16 @@ func (c *client) GetProject(ctx context.Context, project, lang string, opts ...G
 	}
 	applySnapshotContext(&reqModel.Channel, &reqModel.Version, &reqModel.IncludeContext, cfg.requestContext)
 
+	channel, version := snapshotChannelVersion(cfg.requestContext)
+	includeContext := snapshotIncludeContext(cfg.requestContext)
+	cacheKey := cache.ProjectKey(project, lang, cfg.format, channel, version, includeContext)
+
+	if c.cachingEnabled("project") {
+		if cached, ok := c.tryCacheGetProject(ctx, cacheKey); ok {
+			return cached, nil
+		}
+	}
+
 	httpReq, err := c.buildGETRequest(ctx, sdkTranslationsPrefix+"/project", reqModel, "application/json", cfg.requestContext)
 	if err != nil {
 		return nil, err
@@ -63,11 +75,33 @@ func (c *client) GetProject(ctx context.Context, project, lang string, opts ...G
 	defer func() { _ = resp.Body.Close() }()
 
 	dest := &models.TranslationProject{}
-	result, err := handleJSONGETStatus(resp, cfg.requestContext, dest, func() any {
-		return emptyTranslationProject()
-	})
-	if err != nil {
-		return nil, err
+	switch resp.StatusCode {
+	case http.StatusOK:
+		assignResponseContext(resp, cfg.requestContext, false)
+		body, err := readResponseBody(resp)
+		if err != nil {
+			return nil, err
+		}
+		if err := decodeJSONBody(body, dest); err != nil {
+			return nil, err
+		}
+		if c.cachingEnabled("project") {
+			c.cacheSetProject(ctx, cacheKey, dest)
+		}
+		return dest, nil
+	case http.StatusNoContent:
+		assignResponseContext(resp, cfg.requestContext, false)
+		return emptyTranslationProject(), nil
+	case http.StatusNotModified:
+		assignResponseContext(resp, cfg.requestContext, true)
+		if c.cacheProvider != nil {
+			if cached, ok := c.tryCacheGetProject(ctx, cacheKey); ok {
+				return cached, nil
+			}
+		}
+		return emptyTranslationProject(), nil
+	default:
+		body, _ := readResponseBody(resp)
+		return nil, handleAPIError(resp.StatusCode, body)
 	}
-	return result.(*models.TranslationProject), nil
 }

@@ -73,35 +73,6 @@ func readResponseBody(resp *http.Response) ([]byte, error) {
 	return body, nil
 }
 
-func handleJSONGETStatus(
-	resp *http.Response,
-	reqCtx *models.RequestContext,
-	dest any,
-	empty func() any,
-) (any, error) {
-	switch resp.StatusCode {
-	case http.StatusOK:
-		assignResponseContext(resp, reqCtx, false)
-		body, err := readResponseBody(resp)
-		if err != nil {
-			return nil, err
-		}
-		if err := decodeJSONBody(body, dest); err != nil {
-			return nil, err
-		}
-		return dest, nil
-	case http.StatusNoContent:
-		assignResponseContext(resp, reqCtx, false)
-		return empty(), nil
-	case http.StatusNotModified:
-		assignResponseContext(resp, reqCtx, true)
-		return empty(), nil
-	default:
-		body, _ := readResponseBody(resp)
-		return nil, handleAPIError(resp.StatusCode, body)
-	}
-}
-
 func applySnapshotContext(channel, version *string, includeContext **bool, ctx *models.RequestContext) {
 	if ctx == nil {
 		return
