@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/acuencadev/translaas-sdk-go/cache"
 	"github.com/acuencadev/translaas-sdk-go/internal/httpx"
 	"github.com/acuencadev/translaas-sdk-go/models"
 )
@@ -73,6 +74,16 @@ func (c *client) GetEntry(ctx context.Context, group, entry, lang string, opts .
 	extra := copyStringMap(cfg.parameters)
 	httpx.InjectPluralN(extra, cfg.number)
 
+	channel, version := snapshotChannelVersion(cfg.requestContext)
+	project := resolveEntryProject(cfg.requestContext, c.defaultProjectID)
+	cacheKey := cache.EntryKey(group, entry, lang, cfg.number, cfg.parameters, project, channel, version)
+
+	if c.cachingEnabled("entry") {
+		if cached, ok := c.tryCacheGetString(ctx, cacheKey); ok {
+			return cached, nil
+		}
+	}
+
 	httpReq, err := c.buildTextRequest(ctx, reqModel, extra, cfg.requestContext)
 	if err != nil {
 		return "", err
@@ -91,12 +102,21 @@ func (c *client) GetEntry(ctx context.Context, group, entry, lang string, opts .
 		if err != nil {
 			return "", fmt.Errorf("read response body: %w", err)
 		}
-		return string(body), nil
+		value := string(body)
+		if c.cachingEnabled("entry") {
+			c.cacheSetString(ctx, cacheKey, value)
+		}
+		return value, nil
 	case http.StatusNoContent:
 		assignResponseContext(resp, cfg.requestContext, false)
 		return entry, nil
 	case http.StatusNotModified:
 		assignResponseContext(resp, cfg.requestContext, true)
+		if c.cacheProvider != nil {
+			if cached, ok := c.tryCacheGetString(ctx, cacheKey); ok {
+				return cached, nil
+			}
+		}
 		return "", nil
 	default:
 		body, _ := io.ReadAll(resp.Body)

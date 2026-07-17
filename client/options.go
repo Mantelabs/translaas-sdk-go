@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acuencadev/translaas-sdk-go/cache"
 	"github.com/acuencadev/translaas-sdk-go/internal/validate"
 )
 
@@ -14,10 +15,15 @@ type Options struct {
 	BaseURL          string
 	Timeout          time.Duration
 	DefaultProjectID string
+	CacheMode        cache.Mode
+	CacheTTL         cache.TTL
 }
 
 type clientConfig struct {
-	httpClient *http.Client
+	httpClient    *http.Client
+	cacheProvider cache.Provider
+	cacheMode     *cache.Mode
+	cacheTTL      *cache.TTL
 }
 
 // Option configures client construction.
@@ -30,12 +36,38 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+// WithCacheMode overrides Options.CacheMode.
+func WithCacheMode(mode cache.Mode) Option {
+	return func(cfg *clientConfig) {
+		m := mode
+		cfg.cacheMode = &m
+	}
+}
+
+// WithCacheProvider supplies a custom in-memory cache provider (primarily for tests).
+func WithCacheProvider(provider cache.Provider) Option {
+	return func(cfg *clientConfig) {
+		cfg.cacheProvider = provider
+	}
+}
+
+// WithCacheTTL overrides Options.CacheTTL.
+func WithCacheTTL(ttl cache.TTL) Option {
+	return func(cfg *clientConfig) {
+		t := ttl
+		cfg.cacheTTL = &t
+	}
+}
+
 type client struct {
 	apiKey           string
 	baseURL          string
 	timeout          time.Duration
 	defaultProjectID string
 	httpClient       *http.Client
+	cacheMode        cache.Mode
+	cacheTTL         cache.TTL
+	cacheProvider    cache.Provider
 }
 
 // New constructs a Client with validated options.
@@ -57,6 +89,24 @@ func New(opts Options, optFns ...Option) (Client, error) {
 		optFn(&cfg)
 	}
 
+	cacheMode := opts.CacheMode
+	if cfg.cacheMode != nil {
+		cacheMode = *cfg.cacheMode
+	}
+	cacheTTL := opts.CacheTTL
+	if cfg.cacheTTL != nil {
+		cacheTTL = *cfg.cacheTTL
+	}
+
+	var cacheProvider cache.Provider
+	if cacheMode != cache.ModeNone {
+		if cfg.cacheProvider != nil {
+			cacheProvider = cfg.cacheProvider
+		} else {
+			cacheProvider = cache.NewMemoryProvider()
+		}
+	}
+
 	httpClient := cfg.httpClient
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: timeout}
@@ -68,5 +118,8 @@ func New(opts Options, optFns ...Option) (Client, error) {
 		timeout:          timeout,
 		defaultProjectID: strings.TrimSpace(opts.DefaultProjectID),
 		httpClient:       httpClient,
+		cacheMode:        cacheMode,
+		cacheTTL:         cacheTTL,
+		cacheProvider:    cacheProvider,
 	}, nil
 }

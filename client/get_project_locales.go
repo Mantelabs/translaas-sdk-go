@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/acuencadev/translaas-sdk-go/cache"
 	"github.com/acuencadev/translaas-sdk-go/models"
 )
 
@@ -37,6 +39,15 @@ func (c *client) GetProjectLocales(ctx context.Context, project string, opts ...
 	reqModel := models.GetProjectLocalesRequest{Project: project}
 	applyChannelVersion(&reqModel.Channel, &reqModel.Version, cfg.requestContext)
 
+	channel, version := snapshotChannelVersion(cfg.requestContext)
+	cacheKey := cache.LocalesKey(project, channel, version)
+
+	if c.cachingEnabled("locales") {
+		if cached, ok := c.tryCacheGetLocales(ctx, cacheKey); ok {
+			return cached, nil
+		}
+	}
+
 	httpReq, err := c.buildGETRequest(ctx, sdkTranslationsPrefix+"/locales", reqModel, "application/json", cfg.requestContext)
 	if err != nil {
 		return nil, err
@@ -48,11 +59,33 @@ func (c *client) GetProjectLocales(ctx context.Context, project string, opts ...
 	defer func() { _ = resp.Body.Close() }()
 
 	dest := &models.ProjectLocales{}
-	result, err := handleJSONGETStatus(resp, cfg.requestContext, dest, func() any {
-		return emptyProjectLocales()
-	})
-	if err != nil {
-		return nil, err
+	switch resp.StatusCode {
+	case http.StatusOK:
+		assignResponseContext(resp, cfg.requestContext, false)
+		body, err := readResponseBody(resp)
+		if err != nil {
+			return nil, err
+		}
+		if err := decodeJSONBody(body, dest); err != nil {
+			return nil, err
+		}
+		if c.cachingEnabled("locales") {
+			c.cacheSetLocales(ctx, cacheKey, dest)
+		}
+		return dest, nil
+	case http.StatusNoContent:
+		assignResponseContext(resp, cfg.requestContext, false)
+		return emptyProjectLocales(), nil
+	case http.StatusNotModified:
+		assignResponseContext(resp, cfg.requestContext, true)
+		if c.cacheProvider != nil {
+			if cached, ok := c.tryCacheGetLocales(ctx, cacheKey); ok {
+				return cached, nil
+			}
+		}
+		return emptyProjectLocales(), nil
+	default:
+		body, _ := readResponseBody(resp)
+		return nil, handleAPIError(resp.StatusCode, body)
 	}
-	return result.(*models.ProjectLocales), nil
 }
