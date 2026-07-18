@@ -158,12 +158,6 @@ func (m *mockCacheProvider) Clear(context.Context) error {
 	return nil
 }
 
-func (m *mockCacheProvider) getGroupCallCount() int {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	return m.getGroupCalls
-}
-
 func (m *mockCacheProvider) saveProjectCount() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
