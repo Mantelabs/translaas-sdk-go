@@ -43,6 +43,26 @@ func WithRequestContext(rc *models.RequestContext) GetEntryOption {
 	}
 }
 
+// GetEntryCallOptions holds parsed GetEntry call options for decorators.
+type GetEntryCallOptions struct {
+	Number         *float64
+	Parameters     map[string]string
+	RequestContext *models.RequestContext
+}
+
+// ParseGetEntryOptions parses GetEntry options for use by decorators.
+func ParseGetEntryOptions(opts ...GetEntryOption) GetEntryCallOptions {
+	cfg := getEntryConfig{}
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+	return GetEntryCallOptions{
+		Number:         cfg.number,
+		Parameters:     cfg.parameters,
+		RequestContext: cfg.requestContext,
+	}
+}
+
 // GetEntry retrieves a single rendered translation string.
 func (c *client) GetEntry(ctx context.Context, group, entry, lang string, opts ...GetEntryOption) (string, error) {
 	if strings.TrimSpace(group) == "" {

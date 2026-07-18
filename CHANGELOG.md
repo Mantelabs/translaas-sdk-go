@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `cachefile.CachingClient`: offline decorator with CacheFirst, APIFirst, and CacheOnly fallback modes.
 - `cachefile.HybridProvider`: expirable LRU memory L1 over file L2 with promotion, write-through, and warmup helpers.
 - Repository foundation: module layout, CI, linting, Makefile, and contributor docs.
 - `models` package: DTOs, typed errors, request context, translation payloads, and golden test fixtures.
