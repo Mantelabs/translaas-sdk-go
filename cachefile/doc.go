@@ -8,4 +8,7 @@
 //
 // CachingClient decorates client.Client with offline fallback modes (CacheFirst,
 // APIFirst, CacheOnly), offline entry resolution, and cache warming after API reads.
+//
+// SyncService pulls translations from the API into a Provider using the inner client
+// (not CachingClient) and supports optional background sync on a ticker.
 package cachefile

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `cachefile.SyncService`: offline cache synchronization with optional background sync and event callbacks.
+- `cachefile.OfflineCacheOptions`: configuration for offline cache directory, projects, languages, and auto-sync interval.
 - `cachefile.CachingClient`: offline decorator with CacheFirst, APIFirst, and CacheOnly fallback modes.
 - `cachefile.HybridProvider`: expirable LRU memory L1 over file L2 with promotion, write-through, and warmup helpers.
 - Repository foundation: module layout, CI, linting, Makefile, and contributor docs.
