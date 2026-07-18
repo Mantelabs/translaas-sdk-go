@@ -5,4 +5,7 @@
 //
 // HybridProvider adds an expirable LRU memory layer (L1) over any Provider (L2),
 // promoting disk hits into memory and writing through to both tiers on save.
+//
+// CachingClient decorates client.Client with offline fallback modes (CacheFirst,
+// APIFirst, CacheOnly), offline entry resolution, and cache warming after API reads.
 package cachefile
