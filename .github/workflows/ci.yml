@@ -60,6 +60,14 @@ jobs:
       - name: Test
         run: go test ./...
 
+      - name: Test web framework modules (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          for dir in web/gin web/echo web/chi; do
+            echo "Testing $dir"
+            (cd "$dir" && go mod tidy && go test ./...)
+          done
+
       - name: Test with race detector (Linux)
         if: runner.os == 'Linux'
         run: go test -race ./...

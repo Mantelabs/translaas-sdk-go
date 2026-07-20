@@ -21,6 +21,30 @@ type Options struct {
 	Resolver *language.Resolver
 }
 
+// WithPrependedProviders returns a new Service sharing the client with request-scoped
+// providers tried before the existing resolver chain.
+func (s *Service) WithPrependedProviders(providers ...language.Provider) (*Service, error) {
+	if s == nil {
+		return nil, errors.New("service: nil receiver")
+	}
+
+	var resolver *language.Resolver
+	var err error
+	if s.resolver != nil {
+		resolver, err = s.resolver.PrependProviders(providers...)
+	} else {
+		resolver, err = language.NewResolver(providers...)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &Service{
+		client:   s.client,
+		resolver: resolver,
+	}, nil
+}
+
 // New constructs a Service wrapping any client.Client implementation.
 func New(c client.Client, opts Options) (*Service, error) {
 	if c == nil {

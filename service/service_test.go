@@ -196,6 +196,34 @@ func TestTResolverFromContext(t *testing.T) {
 	}
 }
 
+func TestWithPrependedProviders(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{}
+	resolver, err := language.NewResolver(language.NewDefaultLanguageProvider("en"))
+	if err != nil {
+		t.Fatalf("NewResolver: %v", err)
+	}
+
+	base, err := service.New(inner, service.Options{Resolver: resolver})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	reqSvc, err := base.WithPrependedProviders(language.NewDefaultLanguageProvider("de"))
+	if err != nil {
+		t.Fatalf("WithPrependedProviders: %v", err)
+	}
+
+	_, err = reqSvc.T(context.Background(), "common", "welcome")
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "de" {
+		t.Fatalf("lastLang = %q, want de", inner.lastLang)
+	}
+}
+
 func TestTRespectsContextCancellation(t *testing.T) {
 	t.Parallel()
 
