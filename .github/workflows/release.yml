@@ -5,18 +5,20 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
 jobs:
-  release:
-    name: Verify and publish release
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -27,20 +29,102 @@ jobs:
       - name: Verify module
         run: go mod verify
 
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
+          args: ./...
+
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache: true
+
       - name: Vet
         run: go vet ./...
 
       - name: Test
+        run: go test ./...
+
+      - name: Test web framework modules (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          for dir in web/gin web/echo web/chi; do
+            echo "Testing $dir"
+            (cd "$dir" && go mod tidy && go test ./...)
+          done
+
+      - name: Test with race detector (Linux)
+        if: runner.os == 'Linux'
         run: go test -race ./...
         env:
           CGO_ENABLED: "1"
 
-      - name: Build
+  build:
+    name: Build (${{ matrix.os }})
+    needs: [lint, test]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache: true
+
+      - name: Build packages
         run: go build ./...
+
+  publish:
+    name: Publish GitHub Release
+    needs: [lint, test, build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract release notes from CHANGELOG
+        id: changelog
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          NOTES="$(bash scripts/extract-changelog-section.sh "$VERSION")"
+          if [[ -z "$NOTES" ]]; then
+            echo "No CHANGELOG section found for version [$VERSION]." >&2
+            exit 1
+          fi
+          {
+            echo "body<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
-          files: |
-            CHANGELOG.md
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.body }}
+          generate_release_notes: false

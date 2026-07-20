@@ -78,7 +78,40 @@ Reference GitHub issues in the footer: `Closes #123`.
 This module uses [Semantic Versioning](https://semver.org/). Consumers install via:
 
 ```bash
-go get github.com/acuencadev/translaas-sdk-go@v0.x.x
+go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta
+go get github.com/acuencadev/translaas-sdk-go@latest
 ```
 
-Pre-release tags use `-alpha`, `-beta`, or `-rc` suffixes.
+Pre-release tags use `-alpha`, `-beta`, or `-rc` suffixes (for example `v0.4.0-beta`).
+
+## Releasing
+
+Maintainers cut releases from `main` after MVP slices land. Integration tests are **not** part of the default release gate (run manually when needed).
+
+### Checklist
+
+1. Ensure `[Unreleased]` in `CHANGELOG.md` lists all user-visible changes for the release.
+2. Move those entries into a dated section: `## [0.4.0-beta] - YYYY-MM-DD`.
+3. Merge the changelog PR; wait for CI on `main` to pass.
+4. (Optional) Run **Integration Tests** workflow with `TRANSLAAS_API_KEY` for a live smoke test.
+5. Create and push an annotated tag (triggers `.github/workflows/release.yml`):
+
+   ```bash
+   bash scripts/create-release-tag.sh 0.4.0-beta
+   bash scripts/create-release-tag.sh --dry-run   # validate only
+   ```
+
+   The script refuses duplicate remote tags and requires a matching `CHANGELOG.md` section.
+
+6. Confirm the GitHub Release body matches the version section in `CHANGELOG.md`.
+7. Verify consumers can resolve the module:
+
+   ```bash
+   go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta
+   ```
+
+   Indexing on [pkg.go.dev](https://pkg.go.dev/github.com/acuencadev/translaas-sdk-go) may take a few minutes after the tag is pushed.
+
+### Release workflow
+
+Pushing a `v*` tag runs lint, test (Ubuntu + Windows, including web submodule tests), build, then publishes a GitHub Release. Release notes come from `scripts/extract-changelog-section.sh` — not auto-generated commit lists.

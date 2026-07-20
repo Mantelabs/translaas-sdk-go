@@ -6,7 +6,7 @@ Part of the [translaas-all](https://github.com/acuencadev/translaas-all) umbrell
 
 ## Status
 
-MVP complete (milestones **M1–M4**): HTTP client, in-memory cache, offline file cache, sync service, `service.T()`, and optional `web` middleware. Track releases via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and semver tags.
+MVP complete (milestones **M1–M4**): HTTP client, in-memory cache, offline file cache, sync service, `service.T()`, and optional `web` middleware. Current release: **`v0.4.0-beta`**. Track work via [GitHub Issues](https://github.com/Mantelabs/translaas-sdk-go/issues) and semver tags.
 
 Runnable sample apps live in the meta-repo under [`examples/go/`](https://github.com/acuencadev/translaas-all/tree/main/examples/go) — not in this library repository.
 
@@ -16,11 +16,19 @@ Runnable sample apps live in the meta-repo under [`examples/go/`](https://github
 
 ## Installation
 
+Pin to a semver tag (recommended for production):
+
+```bash
+go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta
+```
+
+Track the latest pre-release on `main`:
+
 ```bash
 go get github.com/acuencadev/translaas-sdk-go@latest
 ```
 
-Pin to a semver tag once published (target: `v0.4.0-beta`). Until then, use `@latest` or a commit SHA, or a local `replace` when developing from `translaas-all`.
+The Go module path is `github.com/acuencadev/translaas-sdk-go` (unchanged). When developing from a `translaas-all` checkout before submodule registration ([#18](https://github.com/Mantelabs/translaas-sdk-go/issues/18)), use a local `replace` in your `go.mod`.
 
 ### Packages
 
@@ -186,7 +194,7 @@ Samples: [`examples/go/nethttp`](https://github.com/acuencadev/translaas-all/tre
 
 | Go SDK | .NET SDK | Delivery API | Notes |
 |--------|----------|--------------|-------|
-| `v0.4.0-beta` (target) | `v0.4.1-beta` | `/sdk/v1` + `/api/v1/validate` | M4 parity: client, cache, offline, `T()`, web |
+| `v0.4.0-beta` (current) | `v0.4.1-beta` | `/sdk/v1` + `/api/v1/validate` | M4 parity: client, cache, offline, `T()`, web |
 | `v0.3.0-beta` | — | same | Offline + sync |
 | `v0.2.0-beta` | — | same | In-memory `CacheMode` |
 | `v0.1.0-alpha` | — | same | Read-only client |
@@ -206,14 +214,34 @@ Integration tests: [`tests/integration/README.md`](./tests/integration/README.md
 
 ### CI
 
-GitHub Actions on every push/PR to `main`:
+GitHub Actions on every push/PR to `main` (`.github/workflows/ci.yml`):
 
 - `golangci-lint`
 - `go vet`, `go test` (with `-race` on Linux)
+- `web/gin`, `web/echo`, `web/chi` module tests (Linux)
 - `go build` for all library packages
 - Matrix: **Ubuntu** and **Windows**
 
 Optional manual workflow for integration tests (see `.github/workflows/integration.yml`).
+
+### Releasing (maintainers)
+
+Tag-driven releases use `.github/workflows/release.yml` — the same quality bar as CI, plus a GitHub Release whose body is extracted from `CHANGELOG.md`.
+
+1. Merge PRs with user-visible notes under `[Unreleased]`.
+2. Promote `[Unreleased]` into `## [x.y.z] - YYYY-MM-DD` in `CHANGELOG.md`.
+3. Merge to `main` and confirm CI is green.
+4. Optionally run live integration tests via **Actions → Integration Tests → Run workflow**.
+5. Create and push the tag (triggers the release workflow):
+
+   ```bash
+   bash scripts/create-release-tag.sh 0.4.0-beta
+   # or: bash scripts/create-release-tag.sh --dry-run
+   ```
+
+6. Verify the [GitHub Release](https://github.com/Mantelabs/translaas-sdk-go/releases) notes and module proxy indexing (`go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta`).
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing) for the full checklist.
 
 ## Documentation
 
