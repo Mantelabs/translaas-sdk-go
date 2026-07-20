@@ -11,4 +11,8 @@
 //
 // SyncService pulls translations from the API into a Provider using the inner client
 // (not CachingClient) and supports optional background sync on a ticker.
+//
+// ParseOfflineZip and FileProvider.ImportOfflineBundle import offline ZIP bundles
+// (HTTP spec §7.6) into the same on-disk layout. SyncFromOfflineZip combines download
+// and import in one call.
 package cachefile

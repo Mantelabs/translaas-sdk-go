@@ -20,6 +20,7 @@ type syncMockClient struct {
 
 	getProjectFn        func(ctx context.Context, project, lang string, opts ...client.GetProjectOption) (*models.TranslationProject, error)
 	getProjectLocalesFn func(ctx context.Context, project string, opts ...client.GetProjectLocalesOption) (*models.ProjectLocales, error)
+	getOfflineCacheFn   func(ctx context.Context, project string, opts ...client.GetOfflineCacheOption) (*models.OfflineCacheDownloadResult, error)
 }
 
 func (m *syncMockClient) GetEntry(context.Context, string, string, string, ...client.GetEntryOption) (string, error) {
@@ -52,7 +53,13 @@ func (m *syncMockClient) GetProjectLocales(ctx context.Context, project string, 
 	return nil, errors.New("unexpected GetProjectLocales")
 }
 
-func (m *syncMockClient) GetOfflineCache(context.Context, string, ...client.GetOfflineCacheOption) (*models.OfflineCacheDownloadResult, error) {
+func (m *syncMockClient) GetOfflineCache(ctx context.Context, project string, opts ...client.GetOfflineCacheOption) (*models.OfflineCacheDownloadResult, error) {
+	m.mu.Lock()
+	fn := m.getOfflineCacheFn
+	m.mu.Unlock()
+	if fn != nil {
+		return fn(ctx, project, opts...)
+	}
 	return nil, errors.New("unexpected GetOfflineCache")
 }
 
@@ -150,7 +157,7 @@ func (m *syncMockCache) saveLocalesCallCount() int {
 func newSyncService(
 	t *testing.T,
 	inner *syncMockClient,
-	cache *syncMockCache,
+	cache cachefile.Provider,
 	opts cachefile.OfflineCacheOptions,
 	callbacks cachefile.SyncCallbacks,
 ) *cachefile.SyncService {
