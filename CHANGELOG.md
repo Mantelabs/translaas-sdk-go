@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Expanded README with installation, quickstart, caching, offline, error handling, compatibility matrix, and links to `examples/go/` sample apps.
+- Added runnable `basic` and `offline` console samples under `translaas-all/examples/go/` (not in this library repo).
+- Updated umbrella KB article `.docs/kb/sdk-go.md` to document the official SDK (plain-text text endpoint; removed incorrect interim JSON client example).
+
 ### Added
 
 - Live API integration tests under `tests/integration/` (build tag `integration`, env-gated via `TRANSLAAS_API_KEY`).

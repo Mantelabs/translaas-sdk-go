@@ -1,20 +1,14 @@
 # Translaas SDK for Go
 
-Official [Translaas](https://github.com/acuencadev/translaas-all) client SDK for Go. Implementation in progress.
+Official [Translaas](https://github.com/acuencadev/translaas-all) client SDK for Go. Delivers translations from the Translaas SDK Delivery API with in-memory caching, file-backed offline mode, a convenience `T()` API, and optional web framework integrations.
 
 Part of the [translaas-all](https://github.com/acuencadev/translaas-all) umbrella workspace.
 
 ## Status
 
-Early development. The `models` package (DTOs, errors, request context), `internal/httpx` (URL/query helpers), and `client.GetEntry` are implemented; remaining client methods are next. Track progress via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and milestones **M0–M5**.
+MVP complete (milestones **M1–M4**): HTTP client, in-memory cache, offline file cache, sync service, `service.T()`, and optional `web` middleware. Track releases via [GitHub Issues](https://github.com/acuencadev/translaas-sdk-go/issues) and semver tags.
 
-## Implementation plan
-
-Phased roadmap aligned to the .NET reference SDK (`Translaas.SDK`):
-
-- [translaas-sdk-go-implementation.md](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-go-implementation.md)
-- [translaas-sdk-dotnet-porting-reference.md](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-dotnet-porting-reference.md)
-- [translaas-sdk-http-api-spec.md](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-http-api-spec.md)
+Runnable sample apps live in the meta-repo under [`examples/go/`](https://github.com/acuencadev/translaas-all/tree/main/examples/go) — not in this library repository.
 
 ## Requirements
 
@@ -26,26 +20,207 @@ Phased roadmap aligned to the .NET reference SDK (`Translaas.SDK`):
 go get github.com/acuencadev/translaas-sdk-go@latest
 ```
 
-> No stable release yet. Pin to a commit or pre-release tag once published.
+Pin to a semver tag once published (target: `v0.4.0-beta`). Until then, use `@latest` or a commit SHA, or a local `replace` when developing from `translaas-all`.
+
+### Packages
+
+Consumers import subpackages — there is no single root package:
+
+| Package | Import path | Role |
+|---------|-------------|------|
+| `models` | `github.com/acuencadev/translaas-sdk-go/models` | DTOs, typed errors, request context |
+| `cache` | `github.com/acuencadev/translaas-sdk-go/cache` | `Mode`, key builder, memory provider |
+| `client` | `github.com/acuencadev/translaas-sdk-go/client` | HTTP client |
+| `cachefile` | `github.com/acuencadev/translaas-sdk-go/cachefile` | Disk cache, hybrid L1, decorator, sync |
+| `service` | `github.com/acuencadev/translaas-sdk-go/service` | `T()` convenience API |
+| `web` | `github.com/acuencadev/translaas-sdk-go/web` | stdlib middleware (optional: `web/gin`, `web/echo`, `web/chi`) |
+
+## Quick start
+
+### Option A — `service.Service` (recommended)
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/acuencadev/translaas-sdk-go/cache"
+	"github.com/acuencadev/translaas-sdk-go/client"
+	"github.com/acuencadev/translaas-sdk-go/service"
+	"github.com/acuencadev/translaas-sdk-go/service/language"
+)
+
+func main() {
+	c, err := client.New(client.Options{
+		APIKey:           os.Getenv("TRANSLAAS_API_KEY"),
+		BaseURL:          envOr("TRANSLAAS_BASE_URL", "https://sdk-api.translaas.local"),
+		DefaultProjectID: envOr("TRANSLAAS_DEFAULT_PROJECT", "my-project"),
+		CacheMode:        cache.ModeGroup,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resolver, err := language.NewResolver(language.NewDefaultLanguageProvider("en"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	svc, err := service.New(c, service.Options{Resolver: resolver})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	text, err := svc.T(context.Background(), "common", "welcome", service.WithLang("en"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(text)
+}
+
+func envOr(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+```
+
+See also: [`examples/go/basic`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/basic).
+
+### Option B — `client.Client` (direct API)
+
+```go
+text, err := c.GetEntry(ctx, "ui", "button.save", "en")
+// 200 → plain text body; 204 → returns entry key unchanged
+
+group, err := c.GetGroup(ctx, "my-project", "ui", "en")
+// JSON payload; 204 → empty group (not an error)
+```
+
+Additional options: `client.WithNumber`, `client.WithParameters`, `client.WithRequestContext`. When `DefaultProjectID` is empty on a tenant-scoped key, use `client.NewWithResolvedProject`.
+
+The text endpoint returns **plain text** (`Accept: text/plain`), not a JSON wrapper.
+
+## Configuration
+
+| Field / env | Notes |
+|-------------|-------|
+| `Options.APIKey` / `TRANSLAAS_API_KEY` | Required for live API (except `FallbackCacheOnly` after cache is seeded) |
+| `Options.BaseURL` / `TRANSLAAS_BASE_URL` | **Origin only** — do not append `/api` or `/sdk` |
+| `Options.DefaultProjectID` | Required for text endpoint and offline entry lookups |
+| `Options.Timeout` | Default 30s; deadline/transport timeout maps to `*models.APIError` with status **408** |
+| `Options.CacheMode` | `cache.ModeNone` … `ModeProject`; **recommend `ModeGroup`** |
+
+See [API Keys & Authentication](https://github.com/acuencadev/translaas-all/blob/main/.docs/kb/auth-api-keys.md).
+
+## In-memory caching
+
+| `cache.Mode` | Behavior |
+|--------------|----------|
+| `ModeNone` | Every call hits the API |
+| `ModeEntry` | Cache individual `GetEntry` results |
+| `ModeGroup` | Cache group payloads (**recommended**) |
+| `ModeProject` | Cache full project payloads |
+
+`GetProjectLocales` is cached whenever mode ≠ `ModeNone`.
+
+Details: [SDK caching KB](https://github.com/acuencadev/translaas-all/blob/main/.docs/kb/sdk-caching-resiliency.md).
+
+## Offline / file cache
+
+Wrap the HTTP client with `cachefile.CachingClient`:
+
+```go
+fileProvider, err := cachefile.NewFileProvider(".translaas-cache")
+hybrid, err := cachefile.NewHybridProvider(fileProvider, cachefile.DefaultHybridOptions())
+inner, _ := client.New(/* … */)
+cached, err := cachefile.NewCachingClient(inner, hybrid, cachefile.Options{
+	FallbackMode:     cachefile.FallbackCacheFirst,
+	DefaultProjectID: "my-project",
+})
+```
+
+| `FallbackMode` | Order |
+|----------------|-------|
+| `FallbackCacheFirst` | Disk → API on miss |
+| `FallbackAPIFirst` | API → disk on network/API errors |
+| `FallbackCacheOnly` | Disk only |
+
+Use `cachefile.NewSyncService` to populate the on-disk cache. Optional background sync: `StartBackgroundSync`.
+
+**Offline pluralization caveat:** simplified rule (`n == 1` → `One`, else `Other`) — not CLDR-complete. See [porting reference](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-dotnet-porting-reference.md).
+
+Runnable sample: [`examples/go/offline`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/offline).
+
+## Error handling
+
+Use `errors.As` for typed errors:
+
+| Type | When |
+|------|------|
+| `*models.APIError` | HTTP 4xx/5xx; timeout → status **408** |
+| `*models.ConfigurationError` | Invalid `client.New` options |
+| `*models.OfflineCacheError` | Corrupt or unreadable disk cache |
+| `*models.OfflineCacheMissError` | `FallbackCacheOnly` miss |
+| `models.ErrNoLanguage` | Language resolver yielded nothing |
+
+```go
+var apiErr *models.APIError
+if errors.As(err, &apiErr) {
+	// apiErr.StatusCode, apiErr.Code, apiErr.Message
+}
+```
+
+## Web frameworks
+
+Optional middleware and helpers for `net/http`, Gin, Echo, and chi. Translation strings are **not** HTML-escaped — escape in templates.
+
+Samples: [`examples/go/nethttp`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/nethttp), [`gin`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/gin), [`echo`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/echo), [`chi`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/chi).
+
+## Compatibility
+
+| Go SDK | .NET SDK | Delivery API | Notes |
+|--------|----------|--------------|-------|
+| `v0.4.0-beta` (target) | `v0.4.1-beta` | `/sdk/v1` + `/api/v1/validate` | M4 parity: client, cache, offline, `T()`, web |
+| `v0.3.0-beta` | — | same | Offline + sync |
+| `v0.2.0-beta` | — | same | In-memory `CacheMode` |
+| `v0.1.0-alpha` | — | same | Read-only client |
+
+**Known divergences:** no built-in retry policy in Go v1; simplified offline pluralization; text endpoint returns plain text (not JSON).
 
 ## Development
 
 ```bash
-make help          # list targets
+make help              # list targets
 make tidy test lint
-make coverage      # local coverage report
+make test-integration  # live API (requires TRANSLAAS_API_KEY)
+make coverage
 ```
 
-Runnable samples: **[translaas-sdk-examples](https://github.com/acuencadev/translaas-sdk-examples)** (`go/`).
+Integration tests: [`tests/integration/README.md`](./tests/integration/README.md).
 
 ### CI
 
-GitHub Actions runs on every push/PR to `main`:
+GitHub Actions on every push/PR to `main`:
 
 - `golangci-lint`
 - `go vet`, `go test` (with `-race` on Linux)
 - `go build` for all library packages
 - Matrix: **Ubuntu** and **Windows**
+
+Optional manual workflow for integration tests (see `.github/workflows/integration.yml`).
+
+## Documentation
+
+- [Go SDK integration guide (KB)](https://github.com/acuencadev/translaas-all/blob/main/.docs/kb/sdk-go.md)
+- [Implementation plan](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-go-implementation.md)
+- [HTTP API spec](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-http-api-spec.md)
+- [Porting reference](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-dotnet-porting-reference.md)
 
 ## Package layout
 
@@ -55,11 +230,11 @@ cache/        In-memory caching
 client/       HTTP client
 cachefile/    Offline disk cache
 service/      Convenience API
+web/          Optional framework integrations
 internal/     Non-exported helpers
-testdata/     Golden JSON fixtures for unit tests
+testdata/     Golden JSON fixtures
+tests/        Integration tests (build tag: integration)
 ```
-
-Sample apps: [translaas-sdk-examples/go](https://github.com/acuencadev/translaas-sdk-examples/tree/main/go).
 
 ## Contributing
 
