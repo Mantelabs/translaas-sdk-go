@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `service.Service` and `T()`: convenience translation API with functional options (`WithLang`, `WithNumber`, `WithParameters`, `WithRequestContext`).
+- `service/language`: provider chain resolver with `DefaultLanguageProvider`, `AcceptLanguageProvider`, and `ContextLanguageProvider`.
 - `cachefile.SyncService`: offline cache synchronization with optional background sync and event callbacks.
 - `cachefile.OfflineCacheOptions`: configuration for offline cache directory, projects, languages, and auto-sync interval.
 - `cachefile.CachingClient`: offline decorator with CacheFirst, APIFirst, and CacheOnly fallback modes.
