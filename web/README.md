@@ -17,7 +17,11 @@ go get github.com/acuencadev/translaas-sdk-go/web/chi
 ## stdlib net/http
 
 ```go
-baseSvc, _ := service.New(client, service.Options{Resolver: resolver})
+apiClient, _ := client.New(client.Options{
+    APIKey:  os.Getenv("TRANSLAAS_API_KEY"),
+    BaseURL: os.Getenv("TRANSLAAS_BASE_URL"),
+})
+baseSvc, _ := service.New(apiClient, service.Options{Resolver: resolver})
 
 mw, err := web.Middleware(web.DefaultMiddlewareOptions(baseSvc))
 if err != nil {
