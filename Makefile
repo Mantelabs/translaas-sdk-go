@@ -1,4 +1,4 @@
-.PHONY: help tidy fmt vet lint test test-race coverage build clean
+.PHONY: help tidy fmt vet lint test test-race test-integration coverage build clean
 
 GO ?= go
 GOLANGCI_LINT ?= golangci-lint
@@ -12,6 +12,7 @@ help:
 	@echo "  make lint       Run golangci-lint"
 	@echo "  make test       Run unit tests"
 	@echo "  make test-race  Run tests with -race (requires CGO)"
+	@echo "  make test-integration  Run live API integration tests (requires TRANSLAAS_API_KEY)"
 	@echo "  make coverage   Run tests with coverage report"
 	@echo "  make build      Build all packages"
 	@echo "  make clean      Remove coverage artifacts"
@@ -36,6 +37,9 @@ test:
 
 test-race:
 	CGO_ENABLED=1 $(GO) test -race ./...
+
+test-integration:
+	$(GO) test -tags=integration -count=1 -timeout 5m ./tests/integration/...
 
 coverage:
 	$(GO) test -coverprofile=coverage.out ./...

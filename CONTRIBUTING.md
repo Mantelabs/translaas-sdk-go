@@ -40,6 +40,10 @@ See the [implementation plan](https://github.com/acuencadev/translaas-all/blob/m
 - Run `make test` (or `make test-race` on Linux/macOS with CGO enabled).
 - Aim for high coverage on public APIs.
 
+### Integration tests (live API)
+
+Optional end-to-end tests live in [`tests/integration/`](tests/integration/). They require `TRANSLAAS_API_KEY` and use the `integration` build tag. See [`tests/integration/README.md`](tests/integration/README.md) for fixture data, env vars, and `make test-integration`. Default CI does not run them.
+
 ### Go conventions
 
 - Accept `context.Context` as the first parameter on all I/O methods.
