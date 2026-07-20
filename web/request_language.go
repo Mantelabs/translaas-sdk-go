@@ -11,6 +11,7 @@ import (
 // LanguageSource identifies where RequestLanguageProvider reads a language code.
 type LanguageSource int
 
+// Request language source precedence values for RequestLanguageProvider.
 const (
 	SourceQuery LanguageSource = iota
 	SourceHeader
