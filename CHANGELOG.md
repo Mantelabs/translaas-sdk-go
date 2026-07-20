@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `web` package: stdlib `net/http` middleware, request language provider, and context helpers for request-scoped `service.Service`.
+- Optional framework modules: `web/gin`, `web/echo`, and `web/chi` with separate `go.mod` files.
+- `service.Service.WithPrependedProviders` and `language.Resolver.PrependProviders` for per-request language resolution.
 - `service.Service` and `T()`: convenience translation API with functional options (`WithLang`, `WithNumber`, `WithParameters`, `WithRequestContext`).
 - `service/language`: provider chain resolver with `DefaultLanguageProvider`, `AcceptLanguageProvider`, and `ContextLanguageProvider`.
 - `cachefile.SyncService`: offline cache synchronization with optional background sync and event callbacks.
