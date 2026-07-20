@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Live API integration tests under `tests/integration/` (build tag `integration`, env-gated via `TRANSLAAS_API_KEY`).
+- `make test-integration` target and optional `integration.yml` GitHub Actions workflow for manual runs.
 - `web` package: stdlib `net/http` middleware, request language provider, and context helpers for request-scoped `service.Service`.
 - Optional framework modules: `web/gin`, `web/echo`, and `web/chi` with separate `go.mod` files.
 - `service.Service.WithPrependedProviders` and `language.Resolver.PrependProviders` for per-request language resolution.
