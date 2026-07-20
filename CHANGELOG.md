@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `cachefile.ParseOfflineZip`, `ResolveProjectKey`, and `FileProvider.ImportOfflineBundle` for offline ZIP bundle import (HTTP spec §7.6).
+- `cachefile.SyncService.SyncFromOfflineZip` to download and persist an offline ZIP in one call.
+
 ## [0.4.0-beta] - 2026-07-20
 
 ### Documentation

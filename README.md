@@ -159,7 +159,17 @@ cached, err := cachefile.NewCachingClient(inner, hybrid, cachefile.Options{
 | `FallbackAPIFirst` | API → disk on network/API errors |
 | `FallbackCacheOnly` | Disk only |
 
-Use `cachefile.NewSyncService` to populate the on-disk cache. Optional background sync: `StartBackgroundSync`.
+Use `cachefile.NewSyncService` to populate the on-disk cache. Optional background sync: `StartBackgroundSync`. To seed the cache from a downloaded offline ZIP (CDN, air-gapped bundle, or `GetOfflineCache`):
+
+```go
+result, err := client.GetOfflineCache(ctx, "my-project")
+fileProvider, err := cachefile.NewFileProvider(".translaas-cache")
+err = fileProvider.ImportOfflineBundle(ctx, "my-project", result.Content)
+
+// Or combine download + import:
+syncSvc, err := cachefile.NewSyncService(innerClient, fileProvider, cachefile.DefaultOfflineCacheOptions(), cachefile.SyncCallbacks{})
+err = syncSvc.SyncFromOfflineZip(ctx, "my-project")
+```
 
 **Offline pluralization caveat:** simplified rule (`n == 1` → `One`, else `Other`) — not CLDR-complete. See [porting reference](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-dotnet-porting-reference.md).
 
