@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/client"
 )
 
 // SyncCallbacks holds optional hooks for sync lifecycle events.

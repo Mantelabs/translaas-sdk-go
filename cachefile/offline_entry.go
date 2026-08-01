@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 // Offline pluralization uses simplified rules (1 → One, else Other), not full CLDR.

@@ -6,9 +6,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/client"
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/service/language"
+	"github.com/Mantelabs/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
 	"github.com/stretchr/testify/require"
 )
 

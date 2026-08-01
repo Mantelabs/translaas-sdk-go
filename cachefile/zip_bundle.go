@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 // OfflineBundle holds parsed offline ZIP contents keyed by path segments from the archive.

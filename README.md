@@ -19,16 +19,16 @@ Runnable sample apps live in the meta-repo under [`examples/go/`](https://github
 Pin to a semver tag (recommended for production):
 
 ```bash
-go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta
+go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta
 ```
 
 Track the latest pre-release on `main`:
 
 ```bash
-go get github.com/acuencadev/translaas-sdk-go@latest
+go get github.com/Mantelabs/translaas-sdk-go@latest
 ```
 
-The Go module path is `github.com/acuencadev/translaas-sdk-go` (unchanged). When developing from a `translaas-all` checkout before submodule registration ([#18](https://github.com/Mantelabs/translaas-sdk-go/issues/18)), use a local `replace` in your `go.mod`.
+The Go module path is `github.com/Mantelabs/translaas-sdk-go`. When developing from a `translaas-all` checkout before submodule registration ([#18](https://github.com/Mantelabs/translaas-sdk-go/issues/18)), use a local `replace` in your `go.mod`.
 
 ### Packages
 
@@ -36,12 +36,12 @@ Consumers import subpackages — there is no single root package:
 
 | Package | Import path | Role |
 |---------|-------------|------|
-| `models` | `github.com/acuencadev/translaas-sdk-go/models` | DTOs, typed errors, request context |
-| `cache` | `github.com/acuencadev/translaas-sdk-go/cache` | `Mode`, key builder, memory provider |
-| `client` | `github.com/acuencadev/translaas-sdk-go/client` | HTTP client |
-| `cachefile` | `github.com/acuencadev/translaas-sdk-go/cachefile` | Disk cache, hybrid L1, decorator, sync |
-| `service` | `github.com/acuencadev/translaas-sdk-go/service` | `T()` convenience API |
-| `web` | `github.com/acuencadev/translaas-sdk-go/web` | stdlib middleware (optional: `web/gin`, `web/echo`, `web/chi`) |
+| `models` | `github.com/Mantelabs/translaas-sdk-go/models` | DTOs, typed errors, request context |
+| `cache` | `github.com/Mantelabs/translaas-sdk-go/cache` | `Mode`, key builder, memory provider |
+| `client` | `github.com/Mantelabs/translaas-sdk-go/client` | HTTP client |
+| `cachefile` | `github.com/Mantelabs/translaas-sdk-go/cachefile` | Disk cache, hybrid L1, decorator, sync |
+| `service` | `github.com/Mantelabs/translaas-sdk-go/service` | `T()` convenience API |
+| `web` | `github.com/Mantelabs/translaas-sdk-go/web` | stdlib middleware (optional: `web/gin`, `web/echo`, `web/chi`) |
 
 ## Quick start
 
@@ -56,10 +56,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/acuencadev/translaas-sdk-go/cache"
-	"github.com/acuencadev/translaas-sdk-go/client"
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/service/language"
+	"github.com/Mantelabs/translaas-sdk-go/cache"
+	"github.com/Mantelabs/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
 )
 
 func main() {
@@ -249,7 +249,7 @@ Tag-driven releases use `.github/workflows/release.yml` — the same quality bar
    # or: bash scripts/create-release-tag.sh --dry-run
    ```
 
-6. Verify the [GitHub Release](https://github.com/Mantelabs/translaas-sdk-go/releases) notes and module proxy indexing (`go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta`).
+6. Verify the [GitHub Release](https://github.com/Mantelabs/translaas-sdk-go/releases) notes and module proxy indexing (`go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta`).
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing) for the full checklist.
 

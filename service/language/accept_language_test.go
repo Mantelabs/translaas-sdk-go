@@ -3,7 +3,7 @@ package language_test
 import (
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/service/language"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
 )
 
 func TestParseAcceptLanguage(t *testing.T) {

@@ -1,6 +1,6 @@
 // Package translaasecho integrates Translaas with the Echo web framework.
 //
-// Install: go get github.com/acuencadev/translaas-sdk-go/web/echo
+// Install: go get github.com/Mantelabs/translaas-sdk-go/web/echo
 //
 // Translation strings are not HTML-escaped by the SDK. Use html/template when rendering HTML.
 package translaasecho
@@ -9,8 +9,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/web"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/web"
 	"github.com/labstack/echo/v4"
 )
 

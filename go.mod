@@ -1,4 +1,4 @@
-module github.com/acuencadev/translaas-sdk-go
+module github.com/Mantelabs/translaas-sdk-go
 
 go 1.22
 

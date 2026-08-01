@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 type goldenURLCase struct {

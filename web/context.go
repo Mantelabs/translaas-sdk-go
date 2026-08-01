@@ -3,7 +3,7 @@ package web
 import (
 	"context"
 
-	"github.com/acuencadev/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/service"
 )
 
 type contextKey struct{}

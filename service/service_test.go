@@ -6,10 +6,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/client"
-	"github.com/acuencadev/translaas-sdk-go/models"
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/service/language"
+	"github.com/Mantelabs/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
 )
 
 type mockClient struct {
