@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 const validateAPIKeyPath = "api/v1/api-keys/validate"

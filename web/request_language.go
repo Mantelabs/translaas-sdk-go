@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/acuencadev/translaas-sdk-go/service/language"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
 )
 
 // LanguageSource identifies where RequestLanguageProvider reads a language code.

@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/cachefile"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/cachefile"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 func newTestProvider(t *testing.T) *cachefile.FileProvider {

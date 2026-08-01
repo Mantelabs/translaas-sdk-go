@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 var _ Provider = (*FileProvider)(nil)

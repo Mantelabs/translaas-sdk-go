@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/cache"
+	"github.com/Mantelabs/translaas-sdk-go/cache"
 )
 
 func newCachedTestClient(

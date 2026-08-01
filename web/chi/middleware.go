@@ -1,6 +1,6 @@
 // Package translaaschi integrates Translaas with the chi router.
 //
-// Install: go get github.com/acuencadev/translaas-sdk-go/web/chi
+// Install: go get github.com/Mantelabs/translaas-sdk-go/web/chi
 //
 // Translation strings are not HTML-escaped by the SDK. Use html/template when rendering HTML.
 package translaaschi
@@ -9,7 +9,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/acuencadev/translaas-sdk-go/web"
+	"github.com/Mantelabs/translaas-sdk-go/web"
 	"github.com/go-chi/chi/v5"
 )
 

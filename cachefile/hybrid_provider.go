@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 	lru "github.com/hashicorp/golang-lru/v2/expirable"
 )
 

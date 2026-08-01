@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/acuencadev/translaas-sdk-go/client"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 var _ client.Client = (*CachingClient)(nil)

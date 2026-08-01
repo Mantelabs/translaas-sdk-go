@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 // Provider is the offline disk cache contract (L2). Implementations must be safe for concurrent use.

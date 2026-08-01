@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/acuencadev/translaas-sdk-go/internal/httpx"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/internal/httpx"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 // ReportMissingKeys reports translation keys that could not be resolved at runtime.

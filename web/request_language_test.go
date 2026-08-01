@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/web"
+	"github.com/Mantelabs/translaas-sdk-go/web"
 )
 
 func TestRequestLanguageProviderSourceOrder(t *testing.T) {

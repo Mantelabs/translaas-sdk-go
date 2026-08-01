@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 type roundTripperFunc func(*http.Request) (*http.Response, error)

@@ -1,9 +1,9 @@
-module github.com/acuencadev/translaas-sdk-go/web/echo
+module github.com/Mantelabs/translaas-sdk-go/web/echo
 
 go 1.22
 
 require (
-	github.com/acuencadev/translaas-sdk-go v0.0.0
+	github.com/Mantelabs/translaas-sdk-go v0.0.0
 	github.com/labstack/echo/v4 v4.13.3
 )
 
@@ -19,4 +19,4 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 )
 
-replace github.com/acuencadev/translaas-sdk-go => ../..
+replace github.com/Mantelabs/translaas-sdk-go => ../..

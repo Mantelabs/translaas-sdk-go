@@ -1,6 +1,6 @@
 package service
 
-import "github.com/acuencadev/translaas-sdk-go/models"
+import "github.com/Mantelabs/translaas-sdk-go/models"
 
 type tConfig struct {
 	lang           string

@@ -1,9 +1,9 @@
-module github.com/acuencadev/translaas-sdk-go/web/gin
+module github.com/Mantelabs/translaas-sdk-go/web/gin
 
 go 1.22
 
 require (
-	github.com/acuencadev/translaas-sdk-go v0.0.0
+	github.com/Mantelabs/translaas-sdk-go v0.0.0
 	github.com/gin-gonic/gin v1.10.0
 )
 
@@ -36,4 +36,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/acuencadev/translaas-sdk-go => ../..
+replace github.com/Mantelabs/translaas-sdk-go => ../..

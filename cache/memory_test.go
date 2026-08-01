@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 func newTestMemoryProvider(t *testing.T, opts ...MemoryOption) *memoryProvider {
