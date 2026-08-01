@@ -46,15 +46,17 @@ Example SDK URL:
 
 Constants are centralized in `config_test.go`. Override the project with `TRANSLAAS_DEFAULT_PROJECT` when your API uses a different project id.
 
-Tests that require populated payloads **soft-skip** when the API returns empty containers (204 semantics) or when the entry key is returned as fallback (missing fixture data).
+Tests that require populated payloads **soft-skip** when the API returns empty containers, when the entry key is returned as fallback (missing fixture data), or when the Mantelabs platform returns **HTTP 404** for a missing project (wrong `TRANSLAAS_DEFAULT_PROJECT`).
 
 ### API behavior
 
-| Endpoint | Missing resource | Client behavior |
-|----------|------------------|-----------------|
-| `GetEntry` | 204 | Returns the **entry key** as fallback |
-| `GetGroup` / `GetProject` / `GetProjectLocales` | 204 | Returns an **empty container** (not an error) |
-| Invalid API key | 401/403 | `*models.APIError` |
+| Endpoint | Missing resource | Go/.NET fixture API | Mantelabs platform | Integration test |
+|----------|------------------|---------------------|--------------------|--------------------|
+| `GetEntry` | entry/group | **204** → entry key fallback | **404** ProblemDetails | Accept fallback **or** 404 |
+| `GetGroup` / `GetProject` / `GetProjectLocales` | project/group | **204** → empty container | **404** ProblemDetails | Accept empty **or** 404 |
+| Invalid API key | — | **401/403** | **401/403** | `*models.APIError` |
+
+Happy-path tests **soft-skip** on HTTP 404 when the configured project is missing, with a hint to set `TRANSLAAS_DEFAULT_PROJECT` (default: `translaas-sdk-samples`).
 
 ## Running locally
 

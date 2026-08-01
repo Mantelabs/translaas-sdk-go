@@ -34,7 +34,7 @@ func TestServiceT_ExplicitLanguage(t *testing.T) {
 		fixtureEntry,
 		service.WithLang(fixtureLang),
 	)
-	require.NoError(t, err)
+	requireNoErrorOrSkipNotFound(t, err)
 	if got == fixtureEntry {
 		t.Skip("fixture data not available in API")
 	}
