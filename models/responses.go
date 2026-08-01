@@ -187,35 +187,87 @@ func (g *TranslationGroup) GetPluralForm(key string, category PluralCategory) (s
 
 // TranslationProject represents a project payload with dynamic group keys.
 type TranslationProject struct {
+	Project           string                     `json:"Project,omitempty"`
+	Lang              string                     `json:"Lang,omitempty"`
+	Version           json.RawMessage            `json:"Version,omitempty"`
+	GeneratedAt       *time.Time                 `json:"GeneratedAt,omitempty"`
+	Channel           string                     `json:"Channel,omitempty"`
 	GroupEntryContext map[string]json.RawMessage `json:"groupEntryContext,omitempty"`
 	Groups            map[string]json.RawMessage `json:"-"`
 }
 
-// UnmarshalJSON separates groupEntryContext from extension group keys.
+// UnmarshalJSON separates API metadata and groupEntryContext from translation group keys.
 func (p *TranslationProject) UnmarshalJSON(data []byte) error {
 	var root map[string]json.RawMessage
 	if err := json.Unmarshal(data, &root); err != nil {
 		return err
 	}
 
-	p.Groups = make(map[string]json.RawMessage)
+	*p = TranslationProject{Groups: make(map[string]json.RawMessage)}
+
 	for key, value := range root {
-		if key == "groupEntryContext" {
+		switch key {
+		case "groupEntryContext":
 			var ctx map[string]json.RawMessage
 			if err := json.Unmarshal(value, &ctx); err != nil {
 				return fmt.Errorf("decode groupEntryContext: %w", err)
 			}
 			p.GroupEntryContext = ctx
-			continue
+		case "Project":
+			p.Project = rawString(value)
+		case "Lang":
+			p.Lang = rawString(value)
+		case "Version":
+			p.Version = append(json.RawMessage(nil), value...)
+		case "GeneratedAt":
+			var t time.Time
+			if err := json.Unmarshal(value, &t); err == nil {
+				p.GeneratedAt = &t
+			}
+		case "Channel":
+			p.Channel = rawString(value)
+		default:
+			p.Groups[key] = append(json.RawMessage(nil), value...)
 		}
-		p.Groups[key] = append(json.RawMessage(nil), value...)
 	}
 	return nil
 }
 
-// MarshalJSON writes group keys and optional groupEntryContext.
+// MarshalJSON writes API metadata, group keys, and optional groupEntryContext.
 func (p TranslationProject) MarshalJSON() ([]byte, error) {
-	root := make(map[string]json.RawMessage, len(p.Groups)+1)
+	root := make(map[string]json.RawMessage, len(p.Groups)+6)
+
+	writeStringField := func(key, value string) error {
+		if value == "" {
+			return nil
+		}
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+		root[key] = raw
+		return nil
+	}
+
+	if err := writeStringField("Project", p.Project); err != nil {
+		return nil, err
+	}
+	if err := writeStringField("Lang", p.Lang); err != nil {
+		return nil, err
+	}
+	if len(p.Version) > 0 {
+		root["Version"] = append(json.RawMessage(nil), p.Version...)
+	}
+	if p.GeneratedAt != nil {
+		raw, err := json.Marshal(p.GeneratedAt)
+		if err != nil {
+			return nil, err
+		}
+		root["GeneratedAt"] = raw
+	}
+	if err := writeStringField("Channel", p.Channel); err != nil {
+		return nil, err
+	}
 	for key, value := range p.Groups {
 		root[key] = value
 	}
@@ -241,14 +293,7 @@ func (p *TranslationProject) GetGroup(groupName string) (*TranslationGroup, erro
 	}
 
 	if raw[0] != '{' {
-		var group TranslationGroup
-		if err := json.Unmarshal(raw, &group); err != nil {
-			return nil, err
-		}
-		if group.Entries == nil {
-			group.Entries = map[string]json.RawMessage{}
-		}
-		return &group, nil
+		return nil, nil
 	}
 
 	var obj map[string]json.RawMessage
