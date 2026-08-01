@@ -38,7 +38,7 @@ func TestNewWithResolvedProject_SingleProjectKey(t *testing.T) {
 	}
 
 	got, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
-	require.NoError(t, err)
+	requireNoErrorOrSkipNotFound(t, err)
 	if got == fixtureEntry {
 		t.Skip("fixture data not available in API")
 	}

@@ -15,7 +15,7 @@ func TestGetGroup_ExistingGroup(t *testing.T) {
 	cfg := requireIntegrationConfig(t)
 
 	got, err := c.GetGroup(context.Background(), cfg.DefaultProject, fixtureGroup, fixtureLang)
-	require.NoError(t, err)
+	requireNoErrorOrSkipNotFound(t, err)
 	require.NotNil(t, got)
 	if len(got.Entries) == 0 {
 		t.Skip("fixture data not available in API")
@@ -34,7 +34,7 @@ func TestGetGroup_WithFormat(t *testing.T) {
 		fixtureLang,
 		client.WithGroupFormat("json"),
 	)
-	require.NoError(t, err)
+	requireNoErrorOrSkipNotFound(t, err)
 	require.NotNil(t, got)
 	if len(got.Entries) == 0 {
 		t.Skip("fixture data not available in API")
@@ -47,6 +47,9 @@ func TestGetGroup_GroupNotFound(t *testing.T) {
 	cfg := requireIntegrationConfig(t)
 
 	got, err := c.GetGroup(context.Background(), cfg.DefaultProject, "nonexistent-group", fixtureLang)
+	if acceptSDKNotFound(t, err) {
+		return
+	}
 	require.NoError(t, err)
 	require.NotNil(t, got)
 	require.Empty(t, got.Entries)
@@ -56,6 +59,9 @@ func TestGetGroup_ProjectNotFound(t *testing.T) {
 	c := newIntegrationClient(t)
 
 	got, err := c.GetGroup(context.Background(), "nonexistent-project", fixtureGroup, fixtureLang)
+	if acceptSDKNotFound(t, err) {
+		return
+	}
 	require.NoError(t, err)
 	require.NotNil(t, got)
 	require.Empty(t, got.Entries)

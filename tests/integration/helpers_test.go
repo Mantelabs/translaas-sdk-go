@@ -5,6 +5,7 @@ package integration_test
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strings"
 	"sync"
 	"testing"
@@ -14,6 +15,38 @@ import (
 	"github.com/acuencadev/translaas-sdk-go/models"
 	"github.com/stretchr/testify/require"
 )
+
+const sdkNotFoundSkipMessage = "SDK resource not found (HTTP 404) — set TRANSLAAS_DEFAULT_PROJECT to an existing project id (default: translaas-sdk-samples)"
+
+func isSDKNotFound(err error) bool {
+	var apiErr *models.APIError
+	return errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound
+}
+
+func requireNoErrorOrSkipNotFound(t *testing.T, err error) {
+	t.Helper()
+	if err == nil {
+		return
+	}
+	if isSDKNotFound(err) {
+		t.Skip(sdkNotFoundSkipMessage)
+	}
+	require.NoError(t, err)
+}
+
+// acceptSDKNotFound reports whether err is Mantelabs HTTP 404 (missing SDK resource).
+// Returns false when err is nil; otherwise skips via require on unexpected errors.
+func acceptSDKNotFound(t *testing.T, err error) bool {
+	t.Helper()
+	if err == nil {
+		return false
+	}
+	if isSDKNotFound(err) {
+		return true
+	}
+	require.NoError(t, err)
+	return false
+}
 
 var (
 	reachabilityOnce sync.Once

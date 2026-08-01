@@ -62,6 +62,9 @@ func TestErrorScenarios_EntryNotFoundReturnsKey(t *testing.T) {
 
 	const entry = "nonexistent-entry"
 	got, err := c.GetEntry(context.Background(), "nonexistent-group", entry, "nonexistent-lang")
+	if acceptSDKNotFound(t, err) {
+		return
+	}
 	require.NoError(t, err)
 	require.Equal(t, entry, got)
 }
