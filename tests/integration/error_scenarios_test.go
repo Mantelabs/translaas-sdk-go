@@ -21,7 +21,7 @@ func TestErrorScenarios_InvalidAPIKey(t *testing.T) {
 		BaseURL: cfg.BaseURL,
 	})
 
-	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntrySave, fixtureLang)
+	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.Error(t, err)
 
 	var apiErr *models.APIError
@@ -36,7 +36,7 @@ func TestErrorScenarios_InvalidBaseURL(t *testing.T) {
 		BaseURL: "https://invalid-url-that-does-not-exist-12345.com/api",
 	})
 
-	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntrySave, fixtureLang)
+	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.Error(t, err)
 }
 
@@ -48,7 +48,7 @@ func TestErrorScenarios_RequestTimeout(t *testing.T) {
 		Timeout: time.Millisecond,
 	})
 
-	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntrySave, fixtureLang)
+	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.Error(t, err)
 
 	var apiErr *models.APIError

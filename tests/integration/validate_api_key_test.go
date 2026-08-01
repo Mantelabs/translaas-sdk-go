@@ -37,9 +37,9 @@ func TestNewWithResolvedProject_SingleProjectKey(t *testing.T) {
 		t.Skip("API key is not single-project scoped")
 	}
 
-	got, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntrySave, fixtureLang)
+	got, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.NoError(t, err)
-	if got == fixtureEntrySave {
+	if got == fixtureEntry {
 		t.Skip("fixture data not available in API")
 	}
 	require.NotEmpty(t, got)

@@ -12,23 +12,41 @@ Live API integration tests for `github.com/acuencadev/translaas-sdk-go`. They mi
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `TRANSLAAS_API_KEY` | **Yes** to run | — | Raw `X-Api-Key` value |
-| `TRANSLAAS_BASE_URL` | No | `https://sdk-api.translaas.local` | API origin only (no `/api` or `/sdk` suffix) |
-| `TRANSLAAS_DEFAULT_PROJECT` | No | `test-project` | Default project for `GetEntry` and scoped reads |
+| `TRANSLAAS_BASE_URL` | No | `https://api.translaas.local` | API origin only (no `/api` or `/sdk` suffix) |
+| `TRANSLAAS_DEFAULT_PROJECT` | No | `translaas-sdk-samples` | Default project for `GetEntry` and scoped reads |
 
 When `TRANSLAAS_API_KEY` is unset, tests are **skipped** (not failed).
 
+## Local Docker (`platform/translaas`)
+
+Local Compose exposes one API origin for Admin (`/api/v1/...`) and SDK (`/sdk/v1/...`) routes. Use **`https://api.translaas.local`** (same as `TRANSLAAS_BASE_URL` in platform `.env.example`).
+
+```powershell
+# After: docker compose --profile core up -d
+$env:TRANSLAAS_API_KEY = "<your-sdk-api-key>"
+make test-integration
+```
+
 ## Fixture data
 
-Tests expect the following data in your development API (same as the .NET suite):
+Canonical strings live in [translaas-sdk-examples `translaas_sdk_samples_strings.csv`](https://github.com/Mantelabs/translaas-sdk-examples/blob/main/dotnet/docs/translaas_sdk_samples_strings.csv). Live tests default to:
 
 | Field | Value |
 |-------|-------|
-| Project | `test-project` |
-| Group | `ui` |
-| Entries | `button.save`, `button.cancel`, `items.count` |
-| Language | `en` (optional: `fr`, `es`, `de`) |
+| Project | `translaas-sdk-samples` |
+| Group (simple entry) | `common` |
+| Entry (simple) | `welcome.message` |
+| Group (plural) | `messages` |
+| Entry (plural) | `item` |
+| Language | `en` (optional: `fr`, `es`) |
 
-Tests that require populated payloads **soft-skip** when the API returns empty containers (204 semantics).
+Example SDK URL:
+
+`GET /sdk/v1/translations/text?project=translaas-sdk-samples&group=common&lang=en&entry=welcome.message`
+
+Constants are centralized in `config_test.go`. Override the project with `TRANSLAAS_DEFAULT_PROJECT` when your API uses a different project id.
+
+Tests that require populated payloads **soft-skip** when the API returns empty containers (204 semantics) or when the entry key is returned as fallback (missing fixture data).
 
 ### API behavior
 
@@ -44,7 +62,8 @@ Tests that require populated payloads **soft-skip** when the API returns empty c
 
 ```bash
 export TRANSLAAS_API_KEY="your-api-key"
-export TRANSLAAS_BASE_URL="https://api-dev.example.com"   # optional
+export TRANSLAAS_BASE_URL="https://api.translaas.local"   # optional
+export TRANSLAAS_DEFAULT_PROJECT="translaas-sdk-samples"  # optional
 make test-integration
 ```
 
@@ -52,7 +71,8 @@ make test-integration
 
 ```powershell
 $env:TRANSLAAS_API_KEY = "your-api-key"
-$env:TRANSLAAS_BASE_URL = "https://api-dev.example.com"   # optional
+$env:TRANSLAAS_BASE_URL = "https://api.translaas.local"   # optional
+$env:TRANSLAAS_DEFAULT_PROJECT = "translaas-sdk-samples"  # optional
 make test-integration
 ```
 
