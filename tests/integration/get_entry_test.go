@@ -16,7 +16,7 @@ import (
 func TestGetEntry_ExistingEntry(t *testing.T) {
 	c := newIntegrationClient(t)
 
-	got, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntrySave, fixtureLang)
+	got, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.NoError(t, err)
 	require.NotEmpty(t, got)
 }
@@ -26,8 +26,8 @@ func TestGetEntry_WithPluralization(t *testing.T) {
 
 	got, err := c.GetEntry(
 		context.Background(),
-		fixtureGroup,
-		fixtureEntryCount,
+		fixturePluralGroup,
+		fixturePluralEntry,
 		fixtureLang,
 		client.WithNumber(5),
 	)
@@ -51,7 +51,7 @@ func TestGetEntry_InvalidAPIKey(t *testing.T) {
 		BaseURL: cfg.BaseURL,
 	})
 
-	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntrySave, fixtureLang)
+	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.Error(t, err)
 
 	var apiErr *models.APIError

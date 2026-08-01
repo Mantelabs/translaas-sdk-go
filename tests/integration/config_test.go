@@ -5,12 +5,13 @@ package integration_test
 import "os"
 
 const (
-	defaultBaseURL    = "https://sdk-api.translaas.local"
-	defaultProject    = "test-project"
-	fixtureGroup      = "ui"
-	fixtureEntrySave  = "button.save"
-	fixtureEntryCount = "items.count"
-	fixtureLang       = "en"
+	defaultBaseURL       = "https://api.translaas.local"
+	defaultProject       = "translaas-sdk-samples"
+	fixtureGroup         = "common"
+	fixtureEntry         = "welcome.message"
+	fixturePluralGroup   = "messages"
+	fixturePluralEntry   = "item"
+	fixtureLang          = "en"
 )
 
 // Config holds integration test environment settings.

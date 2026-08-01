@@ -31,11 +31,11 @@ func TestServiceT_ExplicitLanguage(t *testing.T) {
 	got, err := svc.T(
 		context.Background(),
 		fixtureGroup,
-		fixtureEntrySave,
+		fixtureEntry,
 		service.WithLang(fixtureLang),
 	)
 	require.NoError(t, err)
-	if got == fixtureEntrySave {
+	if got == fixtureEntry {
 		t.Skip("fixture data not available in API")
 	}
 	require.NotEmpty(t, got)
