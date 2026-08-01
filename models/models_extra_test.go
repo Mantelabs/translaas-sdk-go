@@ -77,7 +77,7 @@ func TestTranslationProject_GetGroupInvalidJSON(t *testing.T) {
 	t.Parallel()
 	project := TranslationProject{
 		Groups: map[string]json.RawMessage{
-			"bad": json.RawMessage(`not-json`),
+			"bad": json.RawMessage(`{invalid`),
 		},
 	}
 	_, err := project.GetGroup("bad")
@@ -221,9 +221,9 @@ func TestTranslationProject_GetGroupNonObjectFallback(t *testing.T) {
 			"str": json.RawMessage(`"plain"`),
 		},
 	}
-	_, err := project.GetGroup("str")
-	if err == nil {
-		t.Fatal("expected error unmarshaling string group payload")
+	group, err := project.GetGroup("str")
+	if err != nil || group != nil {
+		t.Fatalf("GetGroup(str) = (%v, %v), want (nil, nil)", group, err)
 	}
 }
 
