@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Go module dependencies (root go.mod / go.sum)
+  - package-ecosystem: 'gomod'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+
+  # GitHub Actions (CI and release workflows)
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'github-actions'
+      - 'automated'
