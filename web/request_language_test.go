@@ -12,7 +12,7 @@ import (
 func TestRequestLanguageProviderSourceOrder(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/?lang=de", nil)
 	req.Header.Set("Accept-Language", "fr-FR")
 	req.AddCookie(&http.Cookie{Name: "language", Value: "es"})
 
@@ -35,7 +35,7 @@ func TestRequestLanguageProviderSourceOrder(t *testing.T) {
 func TestRequestLanguageProviderAcceptLanguageParsing(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 
 	provider := web.NewRequestLanguageProvider(

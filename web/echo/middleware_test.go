@@ -12,8 +12,8 @@ import (
 	"github.com/Mantelabs/translaas-sdk-go/models"
 	"github.com/Mantelabs/translaas-sdk-go/service"
 	"github.com/Mantelabs/translaas-sdk-go/service/language"
-	translaasecho "github.com/Mantelabs/translaas-sdk-go/web/echo"
 	"github.com/Mantelabs/translaas-sdk-go/web"
+	translaasecho "github.com/Mantelabs/translaas-sdk-go/web/echo"
 	"github.com/labstack/echo/v4"
 )
 
@@ -81,7 +81,7 @@ func TestMiddlewareAndTemplateFunc(t *testing.T) {
 		return c.String(http.StatusOK, text)
 	})
 
-	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/?lang=de", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
