@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/cache"
-	"github.com/acuencadev/translaas-sdk-go/internal/validate"
+	"github.com/Mantelabs/translaas-sdk-go/cache"
+	"github.com/Mantelabs/translaas-sdk-go/internal/validate"
 )
 
 // Options configures the Translaas HTTP client.

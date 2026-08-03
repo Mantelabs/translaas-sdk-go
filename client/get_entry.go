@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/acuencadev/translaas-sdk-go/cache"
-	"github.com/acuencadev/translaas-sdk-go/internal/httpx"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/cache"
+	"github.com/Mantelabs/translaas-sdk-go/internal/httpx"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 type getEntryConfig struct {

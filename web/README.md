@@ -6,12 +6,12 @@ Optional helpers for wiring `service.Service` into Go web applications. The root
 
 ```bash
 # stdlib net/http middleware
-go get github.com/acuencadev/translaas-sdk-go
+go get github.com/Mantelabs/translaas-sdk-go
 
 # optional framework modules
-go get github.com/acuencadev/translaas-sdk-go/web/gin
-go get github.com/acuencadev/translaas-sdk-go/web/echo
-go get github.com/acuencadev/translaas-sdk-go/web/chi
+go get github.com/Mantelabs/translaas-sdk-go/web/gin
+go get github.com/Mantelabs/translaas-sdk-go/web/echo
+go get github.com/Mantelabs/translaas-sdk-go/web/chi
 ```
 
 ## stdlib net/http

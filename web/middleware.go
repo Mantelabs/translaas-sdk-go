@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/service/language"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
 )
 
 // MiddlewareOptions configures request-scoped service injection.

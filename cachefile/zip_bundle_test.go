@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/cachefile"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/cachefile"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 func buildTestOfflineZIP(t *testing.T, mutate func(w *zip.Writer)) []byte {

@@ -1,6 +1,6 @@
 # Translaas Go SDK — integration tests
 
-Live API integration tests for `github.com/acuencadev/translaas-sdk-go`. They mirror [.NET `Translaas.Client.IntegrationTests`](https://github.com/acuencadev/Translaas.SDK/tree/main/tests/Translaas.Client.IntegrationTests).
+Live API integration tests for `github.com/Mantelabs/translaas-sdk-go`. They mirror [.NET `Translaas.Client.IntegrationTests`](https://github.com/acuencadev/Translaas.SDK/tree/main/tests/Translaas.Client.IntegrationTests).
 
 ## Prerequisites
 

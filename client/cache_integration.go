@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/acuencadev/translaas-sdk-go/cache"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/cache"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 func shouldCache(mode cache.Mode, op string) bool {

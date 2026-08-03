@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 func parseTestURL(t *testing.T, raw string) *url.URL {

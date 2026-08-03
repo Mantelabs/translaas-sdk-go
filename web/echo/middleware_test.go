@@ -8,12 +8,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/client"
-	"github.com/acuencadev/translaas-sdk-go/models"
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/service/language"
-	translaasecho "github.com/acuencadev/translaas-sdk-go/web/echo"
-	"github.com/acuencadev/translaas-sdk-go/web"
+	"github.com/Mantelabs/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/service/language"
+	translaasecho "github.com/Mantelabs/translaas-sdk-go/web/echo"
+	"github.com/Mantelabs/translaas-sdk-go/web"
 	"github.com/labstack/echo/v4"
 )
 

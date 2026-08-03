@@ -78,8 +78,8 @@ Reference GitHub issues in the footer: `Closes #123`.
 This module uses [Semantic Versioning](https://semver.org/). Consumers install via:
 
 ```bash
-go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta
-go get github.com/acuencadev/translaas-sdk-go@latest
+go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta
+go get github.com/Mantelabs/translaas-sdk-go@latest
 ```
 
 Pre-release tags use `-alpha`, `-beta`, or `-rc` suffixes (for example `v0.4.0-beta`).
@@ -107,10 +107,10 @@ Maintainers cut releases from `main` after MVP slices land. Integration tests ar
 7. Verify consumers can resolve the module:
 
    ```bash
-   go get github.com/acuencadev/translaas-sdk-go@v0.4.0-beta
+   go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta
    ```
 
-   Indexing on [pkg.go.dev](https://pkg.go.dev/github.com/acuencadev/translaas-sdk-go) may take a few minutes after the tag is pushed.
+   Indexing on [pkg.go.dev](https://pkg.go.dev/github.com/Mantelabs/translaas-sdk-go) may take a few minutes after the tag is pushed.
 
 ### Release workflow
 

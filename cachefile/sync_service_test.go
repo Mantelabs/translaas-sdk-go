@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/acuencadev/translaas-sdk-go/cachefile"
-	"github.com/acuencadev/translaas-sdk-go/client"
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/cachefile"
+	"github.com/Mantelabs/translaas-sdk-go/client"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 type syncMockClient struct {

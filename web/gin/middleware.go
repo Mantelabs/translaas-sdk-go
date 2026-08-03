@@ -1,6 +1,6 @@
 // Package translaasgin integrates Translaas with the Gin web framework.
 //
-// Install: go get github.com/acuencadev/translaas-sdk-go/web/gin
+// Install: go get github.com/Mantelabs/translaas-sdk-go/web/gin
 //
 // Translation strings are not HTML-escaped by the SDK. Use html/template when rendering HTML.
 package translaasgin
@@ -9,8 +9,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/acuencadev/translaas-sdk-go/service"
-	"github.com/acuencadev/translaas-sdk-go/web"
+	"github.com/Mantelabs/translaas-sdk-go/service"
+	"github.com/Mantelabs/translaas-sdk-go/web"
 	"github.com/gin-gonic/gin"
 )
 

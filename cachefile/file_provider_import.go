@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 // ImportOfflineBundle parses zipBytes and persists the matching project into this provider's cache directory.

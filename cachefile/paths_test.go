@@ -3,7 +3,7 @@ package cachefile_test
 import (
 	"testing"
 
-	"github.com/acuencadev/translaas-sdk-go/cachefile"
+	"github.com/Mantelabs/translaas-sdk-go/cachefile"
 )
 
 func TestSanitizePathSegment(t *testing.T) {

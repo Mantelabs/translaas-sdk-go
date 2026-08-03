@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/acuencadev/translaas-sdk-go/models"
+	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
 // NewWithResolvedProject constructs a Client, resolving DefaultProjectID from ValidateAPIKey
