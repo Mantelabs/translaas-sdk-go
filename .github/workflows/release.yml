@@ -36,12 +36,8 @@ jobs:
           args: ./...
 
   test:
-    name: Test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    name: Test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -58,8 +54,7 @@ jobs:
       - name: Test
         run: go test ./...
 
-      - name: Test web framework modules (Linux)
-        if: runner.os == 'Linux'
+      - name: Test web framework modules
         shell: bash
         run: |
           for dir in web/gin web/echo web/chi; do
@@ -67,20 +62,15 @@ jobs:
             (cd "$dir" && go mod tidy && go test ./...)
           done
 
-      - name: Test with race detector (Linux)
-        if: runner.os == 'Linux'
+      - name: Test with race detector
         run: go test -race ./...
         env:
           CGO_ENABLED: "1"
 
   build:
-    name: Build (${{ matrix.os }})
+    name: Build
     needs: [lint, test]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7

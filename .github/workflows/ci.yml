@@ -1,5 +1,7 @@
 name: CI
 
+# Default: Ubuntu only (push/PR) to limit Actions spend across many SDK repos.
+# Windows + macOS: run manually — Actions → CI → Run workflow.
 on:
   push:
     branches: [main]
@@ -38,12 +40,9 @@ jobs:
           args: ./...
 
   test:
-    name: Test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    name: Test
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -60,26 +59,22 @@ jobs:
       - name: Test
         run: go test ./...
 
-      - name: Test web framework modules (Linux)
-        if: runner.os == 'Linux'
+      - name: Test web framework modules
         run: |
           for dir in web/gin web/echo web/chi; do
             echo "Testing $dir"
             (cd "$dir" && go mod tidy && go test ./...)
           done
 
-      - name: Test with race detector (Linux)
-        if: runner.os == 'Linux'
+      - name: Test with race detector
         run: go test -race ./...
         env:
           CGO_ENABLED: "1"
 
-      - name: Upload coverage (Linux)
-        if: runner.os == 'Linux'
+      - name: Upload coverage
         run: go test -coverprofile=coverage.out ./...
 
       - name: Upload coverage artifact
-        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
         with:
           name: coverage
@@ -87,13 +82,10 @@ jobs:
           retention-days: 7
 
   build:
-    name: Build (${{ matrix.os }})
+    name: Build
     needs: [lint, test]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -103,6 +95,54 @@ jobs:
         with:
           go-version: "1.23.x"
           cache: true
+
+      - name: Build packages
+        run: go build ./...
+
+  # Windows: manual runs only (Actions → CI → Run workflow).
+  test-windows-manual:
+    name: Test and build — Windows
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.23.x"
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build packages
+        run: go build ./...
+
+  # macOS: manual runs only (Actions → CI → Run workflow).
+  test-macos-manual:
+    name: Test and build — macOS
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.23.x"
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
 
       - name: Build packages
         run: go build ./...
