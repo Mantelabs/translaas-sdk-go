@@ -12,8 +12,8 @@ import (
 	"github.com/Mantelabs/translaas-sdk-go/models"
 	"github.com/Mantelabs/translaas-sdk-go/service"
 	"github.com/Mantelabs/translaas-sdk-go/service/language"
-	translaaschi "github.com/Mantelabs/translaas-sdk-go/web/chi"
 	"github.com/Mantelabs/translaas-sdk-go/web"
+	translaaschi "github.com/Mantelabs/translaas-sdk-go/web/chi"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -84,7 +84,7 @@ func TestMiddlewareInjectsService(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/?lang=de", nil)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
 

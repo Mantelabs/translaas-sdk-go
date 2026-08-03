@@ -1,6 +1,6 @@
 module github.com/Mantelabs/translaas-sdk-go/web/echo
 
-go 1.22
+go 1.23
 
 require (
 	github.com/Mantelabs/translaas-sdk-go v0.0.0
