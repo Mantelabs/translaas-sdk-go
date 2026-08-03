@@ -70,7 +70,7 @@ Reference GitHub issues in the footer: `Closes #123`.
 
 - Keep PRs focused on a single issue or vertical slice.
 - Link the tracking issue (`Closes #…`).
-- Ensure CI passes (lint, test, build on Ubuntu and Windows).
+- Ensure CI passes (lint, test, build on Ubuntu). Run **Actions → CI → Run workflow** for optional Windows/macOS checks before merging cross-platform-sensitive changes.
 - Update `CHANGELOG.md` under `[Unreleased]` for user-visible changes.
 
 ## Versioning
@@ -114,4 +114,4 @@ Maintainers cut releases from `main` after MVP slices land. Integration tests ar
 
 ### Release workflow
 
-Pushing a `v*` tag runs lint, test (Ubuntu + Windows, including web submodule tests), build, then publishes a GitHub Release. Release notes come from `scripts/extract-changelog-section.sh` — not auto-generated commit lists.
+Pushing a `v*` tag runs lint, test (Ubuntu only, including web submodule tests and `-race`), build, then publishes a GitHub Release. Release notes come from `scripts/extract-changelog-section.sh` — not auto-generated commit lists.

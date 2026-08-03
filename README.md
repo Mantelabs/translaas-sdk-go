@@ -227,12 +227,15 @@ Integration tests: [`tests/integration/README.md`](./tests/integration/README.md
 GitHub Actions on every push/PR to `main` (`.github/workflows/ci.yml`):
 
 - `golangci-lint`
-- `go vet`, `go test` (with `-race` on Linux)
-- `web/gin`, `web/echo`, `web/chi` module tests (Linux)
+- `go vet`, `go test` (with `-race`)
+- `web/gin`, `web/echo`, `web/chi` module tests
 - `go build` for all library packages
-- Matrix: **Ubuntu** and **Windows**
+- **Ubuntu only** on push/PR (cross-SDK policy to limit Actions spend)
 
-Optional manual workflow for integration tests (see `.github/workflows/integration.yml`).
+Optional manual workflows:
+
+- **Actions → CI → Run workflow** — Windows and macOS vet/test/build
+- **Actions → Integration Tests → Run workflow** — live API smoke tests (see `.github/workflows/integration.yml`)
 
 ### Releasing (maintainers)
 
