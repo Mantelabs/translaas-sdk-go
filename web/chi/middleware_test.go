@@ -84,7 +84,7 @@ func TestMiddlewareInjectsService(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/?lang=de", nil)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
 

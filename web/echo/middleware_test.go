@@ -81,7 +81,7 @@ func TestMiddlewareAndTemplateFunc(t *testing.T) {
 		return c.String(http.StatusOK, text)
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/?lang=de", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 

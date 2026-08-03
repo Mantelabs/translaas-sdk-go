@@ -93,7 +93,7 @@ func TestMiddlewareInjectsService(t *testing.T) {
 		got = true
 	}))
 
-	req := httptest.NewRequest(http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/?lang=de", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -122,7 +122,7 @@ func TestMiddlewareResolvesQueryLanguage(t *testing.T) {
 		}
 	}))
 
-	req := httptest.NewRequest(http.MethodGet, "/?lang=de", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/?lang=de", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -151,7 +151,7 @@ func TestMiddlewareAcceptLanguageFallback(t *testing.T) {
 		}
 	}))
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/", nil)
 	req.Header.Set("Accept-Language", "fr-FR,fr;q=0.9")
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
@@ -172,7 +172,7 @@ func TestMiddlewareRequiresBaseService(t *testing.T) {
 func TestRequestLanguageProviderRouteFunc(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/", nil)
 	provider := web.NewRequestLanguageProvider(
 		req,
 		web.RequestLanguageOptions{},
@@ -192,7 +192,7 @@ func TestRequestLanguageProviderRouteFunc(t *testing.T) {
 func TestRequestLanguageProviderCookieSource(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(context.Background(),http.MethodGet, "/", nil)
 	req.AddCookie(&http.Cookie{Name: "language", Value: "es"})
 
 	provider := web.NewRequestLanguageProvider(
