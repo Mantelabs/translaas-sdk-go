@@ -7,12 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- `cachefile.ParseOfflineZip`, `ResolveProjectKey`, and `FileProvider.ImportOfflineBundle` for offline ZIP bundle import (HTTP spec §7.6).
-- `cachefile.SyncService.SyncFromOfflineZip` to download and persist an offline ZIP in one call.
-
-## [0.4.0-beta] - 2026-07-20
+## [0.4.0-beta] - 2026-08-03
 
 ### Documentation
 
@@ -22,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `cachefile.ParseOfflineZip`, `ResolveProjectKey`, and `FileProvider.ImportOfflineBundle` for offline ZIP bundle import (HTTP spec §7.6).
+- `cachefile.SyncService.SyncFromOfflineZip` to download and persist an offline ZIP in one call.
 - Live API integration tests under `tests/integration/` (build tag `integration`, env-gated via `TRANSLAAS_API_KEY`).
 - `make test-integration` target and optional `integration.yml` GitHub Actions workflow for manual runs.
 - `web` package: stdlib `net/http` middleware, request language provider, and context helpers for request-scoped `service.Service`.
