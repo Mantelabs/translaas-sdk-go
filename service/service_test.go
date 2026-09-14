@@ -6,6 +6,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/Mantelabs/translaas-sdk-go/cachefile"
 	"github.com/Mantelabs/translaas-sdk-go/client"
 	"github.com/Mantelabs/translaas-sdk-go/models"
 	"github.com/Mantelabs/translaas-sdk-go/service"
@@ -18,8 +19,13 @@ type mockClient struct {
 	getEntryCalls int
 	lastLang      string
 	lastOpts      client.GetEntryCallOptions
+	defaultLang   string
 
 	getEntryFn func(ctx context.Context, group, entry, lang string, opts ...client.GetEntryOption) (string, error)
+}
+
+func (m *mockClient) DefaultLanguage() string {
+	return m.defaultLang
 }
 
 func (m *mockClient) GetEntry(ctx context.Context, group, entry, lang string, opts ...client.GetEntryOption) (string, error) {
@@ -63,8 +69,44 @@ func (m *mockClient) ValidateAPIKey(context.Context) (*models.ValidateAPIKeyResp
 func TestNewRequiresClient(t *testing.T) {
 	t.Parallel()
 
-	if _, err := service.New(nil, service.Options{}); err == nil {
+	if _, err := service.New(nil); err == nil {
 		t.Fatal("expected error for nil client")
+	}
+}
+
+func TestNewClientOnly(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{}
+	svc, err := service.New(inner)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, err = svc.T(context.Background(), "common", "welcome", service.WithLang("en"))
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "en" {
+		t.Fatalf("lastLang = %q, want en", inner.lastLang)
+	}
+}
+
+func TestNewEmptyOptions(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{}
+	svc, err := service.New(inner, service.Options{})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, err = svc.T(context.Background(), "common", "welcome", service.WithLang("pt"))
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "pt" {
+		t.Fatalf("lastLang = %q, want pt", inner.lastLang)
 	}
 }
 
@@ -248,5 +290,106 @@ func TestTRespectsContextCancellation(t *testing.T) {
 	_, err = svc.T(ctx, "common", "welcome")
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("expected context.Canceled, got %v", err)
+	}
+}
+
+func TestTUsesDefaultLanguageWithoutResolver(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{defaultLang: "fr"}
+	svc, err := service.New(inner)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, err = svc.T(context.Background(), "common", "welcome")
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "fr" {
+		t.Fatalf("lastLang = %q, want fr", inner.lastLang)
+	}
+}
+
+func TestTDefaultLanguageResolverPrecedence(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{defaultLang: "fr"}
+	resolver, err := language.NewResolver(language.NewDefaultLanguageProvider("en"))
+	if err != nil {
+		t.Fatalf("NewResolver: %v", err)
+	}
+
+	svc, err := service.New(inner, service.Options{Resolver: resolver})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, err = svc.T(context.Background(), "common", "welcome")
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "en" {
+		t.Fatalf("lastLang = %q, want en", inner.lastLang)
+	}
+}
+
+type emptyLanguageProvider struct{}
+
+func (emptyLanguageProvider) Language(context.Context) (string, error) {
+	return "", nil
+}
+
+func TestTResolverMissFallsThroughToDefaultLanguage(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{defaultLang: "fr"}
+	resolver, err := language.NewResolver(emptyLanguageProvider{})
+	if err != nil {
+		t.Fatalf("NewResolver: %v", err)
+	}
+
+	svc, err := service.New(inner, service.Options{Resolver: resolver})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, err = svc.T(context.Background(), "common", "welcome")
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "fr" {
+		t.Fatalf("lastLang = %q, want fr", inner.lastLang)
+	}
+}
+
+func TestTDefaultLanguageThroughCachingClient(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{defaultLang: "fr"}
+	fileProvider, err := cachefile.NewFileProvider(t.TempDir())
+	if err != nil {
+		t.Fatalf("NewFileProvider: %v", err)
+	}
+
+	cached, err := cachefile.NewCachingClient(inner, fileProvider, cachefile.Options{
+		FallbackMode:     cachefile.FallbackAPIFirst,
+		DefaultProjectID: "demo",
+	})
+	if err != nil {
+		t.Fatalf("NewCachingClient: %v", err)
+	}
+
+	svc, err := service.New(cached)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, err = svc.T(context.Background(), "common", "welcome")
+	if err != nil {
+		t.Fatalf("T: %v", err)
+	}
+	if inner.lastLang != "fr" {
+		t.Fatalf("lastLang = %q, want fr", inner.lastLang)
 	}
 }

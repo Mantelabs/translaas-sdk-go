@@ -40,3 +40,25 @@ func TestServiceT_ExplicitLanguage(t *testing.T) {
 	}
 	require.NotEmpty(t, got)
 }
+
+func TestServiceT_DefaultLanguageNoResolver(t *testing.T) {
+	cfg := requireIntegrationConfig(t)
+
+	httpClient, err := client.New(client.Options{
+		APIKey:           cfg.APIKey,
+		BaseURL:          cfg.BaseURL,
+		DefaultProjectID: cfg.DefaultProject,
+		DefaultLanguage:  fixtureLang,
+	})
+	require.NoError(t, err)
+
+	svc, err := service.New(httpClient)
+	require.NoError(t, err)
+
+	got, err := svc.T(context.Background(), fixtureGroup, fixtureEntry)
+	requireNoErrorOrSkipNotFound(t, err)
+	if got == fixtureEntry {
+		t.Skip("fixture data not available in API")
+	}
+	require.NotEmpty(t, got)
+}
