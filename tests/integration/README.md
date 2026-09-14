@@ -13,7 +13,7 @@ Live API integration tests for `github.com/Mantelabs/translaas-sdk-go`. They mir
 |----------|----------|---------|-------------|
 | `TRANSLAAS_API_KEY` | **Yes** to run | — | Raw `X-Api-Key` value |
 | `TRANSLAAS_BASE_URL` | No | `https://api.translaas.local` | API origin only (no `/api` or `/sdk` suffix) |
-| `TRANSLAAS_DEFAULT_PROJECT` | No | `translaas-sdk-samples` | Default project for `GetEntry` and scoped reads |
+| `TRANSLAAS_DEFAULT_PROJECT` | No | `translaas-sdk-samples` | Project id for `GetEntry` and scoped reads. The Delivery API looks up **`projects.slug`**. Local dogfood slug is `translaassdksamples`; display name is `translaas-sdk-samples`. Copy the slug from Admin or the API-key validate response if tests 404. |
 
 When `TRANSLAAS_API_KEY` is unset, tests are **skipped** (not failed).
 

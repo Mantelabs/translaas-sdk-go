@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `client.Options.DefaultLanguage` — fallback language for `service.T` when `WithLang` is omitted and no resolver yields a value.
+- `client.Options.InsecureSkipVerify` — **dev-only** TLS skip-verify on the built-in HTTP client (ignored when `WithHTTPClient` is set).
+- `service.New(c)` — resolver is optional; `New(c, service.Options{Resolver: r})` is unchanged.
+- `models.TransportError` for connect / TLS / DNS failures (`errors.As` / `Unwrap`).
+- `cachefile.CachingClient.DefaultLanguage` forwards the inner client's default language.
+
+### Changed
+
+- Connect / TLS / DNS failures are no longer mapped to `*models.APIError` with HTTP **400**. Timeouts remain **408**. Callers that assumed every `GetEntry` error was `*APIError` should also handle `*models.TransportError`.
+
+### Documentation
+
+- README Option A no longer requires `language.NewResolver`. Local origin is `https://api.translaas.local`; fixture entry is `welcome.message`.
+
 ## [0.4.0-beta] - 2026-08-03
 
 ### Documentation

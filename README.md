@@ -59,31 +59,27 @@ import (
 	"github.com/Mantelabs/translaas-sdk-go/cache"
 	"github.com/Mantelabs/translaas-sdk-go/client"
 	"github.com/Mantelabs/translaas-sdk-go/service"
-	"github.com/Mantelabs/translaas-sdk-go/service/language"
 )
 
 func main() {
 	c, err := client.New(client.Options{
-		APIKey:           os.Getenv("TRANSLAAS_API_KEY"),
-		BaseURL:          envOr("TRANSLAAS_BASE_URL", "https://sdk-api.translaas.local"),
-		DefaultProjectID: envOr("TRANSLAAS_DEFAULT_PROJECT", "my-project"),
-		CacheMode:        cache.ModeGroup,
+		APIKey:             os.Getenv("TRANSLAAS_API_KEY"),
+		BaseURL:            envOr("TRANSLAAS_BASE_URL", "https://api.translaas.local"),
+		DefaultProjectID:   envOr("TRANSLAAS_DEFAULT_PROJECT", "my-project"),
+		DefaultLanguage:    "en",
+		CacheMode:          cache.ModeGroup,
+		InsecureSkipVerify: true, // DEV-ONLY — local Traefik certs
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	resolver, err := language.NewResolver(language.NewDefaultLanguageProvider("en"))
+	svc, err := service.New(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	svc, err := service.New(c, service.Options{Resolver: resolver})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	text, err := svc.T(context.Background(), "common", "welcome", service.WithLang("en"))
+	text, err := svc.T(context.Background(), "common", "welcome.message", service.WithLang("en"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -97,6 +93,10 @@ func envOr(key, fallback string) string {
 	return fallback
 }
 ```
+
+`DefaultProjectID` must be the project **slug** (from Admin → project details or the API-key validate response), not the display name. Local Docker dogfood: slug `translaassdksamples`, display name `translaas-sdk-samples`.
+
+Omit `InsecureSkipVerify` (or set it `false`) against hosted APIs with publicly trusted certificates. For web apps, pass `service.Options{Resolver: …}` so Accept-Language middleware can resolve language without `WithLang`.
 
 See also: [`examples/go/basic`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/basic).
 
@@ -119,8 +119,10 @@ The text endpoint returns **plain text** (`Accept: text/plain`), not a JSON wrap
 | Field / env | Notes |
 |-------------|-------|
 | `Options.APIKey` / `TRANSLAAS_API_KEY` | Required for live API (except `FallbackCacheOnly` after cache is seeded) |
-| `Options.BaseURL` / `TRANSLAAS_BASE_URL` | **Origin only** — do not append `/api` or `/sdk` |
-| `Options.DefaultProjectID` | Required for text endpoint and offline entry lookups |
+| `Options.BaseURL` / `TRANSLAAS_BASE_URL` | **Origin only** — do not append `/api` or `/sdk`. Local Docker: `https://api.translaas.local` |
+| `Options.DefaultProjectID` | Project **slug** for text endpoint and offline entry lookups |
+| `Options.DefaultLanguage` | Optional fallback for `service.T` when `WithLang` is omitted and no resolver yields a language |
+| `Options.InsecureSkipVerify` | **Dev-only.** Skip TLS verify on the built-in HTTP client (local Traefik). Ignored when `WithHTTPClient` is set. Default `false` |
 | `Options.Timeout` | Default 30s; deadline/transport timeout maps to `*models.APIError` with status **408** |
 | `Options.CacheMode` | `cache.ModeNone` … `ModeProject`; **recommend `ModeGroup`** |
 
@@ -181,11 +183,12 @@ Use `errors.As` for typed errors:
 
 | Type | When |
 |------|------|
-| `*models.APIError` | HTTP 4xx/5xx; timeout → status **408** |
+| `*models.APIError` | HTTP 4xx/5xx from the API; timeout → status **408** |
+| `*models.TransportError` | Connect / TLS / DNS failures (not an HTTP status; `Unwrap` for the cause) |
 | `*models.ConfigurationError` | Invalid `client.New` options |
 | `*models.OfflineCacheError` | Corrupt or unreadable disk cache |
 | `*models.OfflineCacheMissError` | `FallbackCacheOnly` miss |
-| `models.ErrNoLanguage` | Language resolver yielded nothing |
+| `models.ErrNoLanguage` | No `WithLang`, resolver, or `DefaultLanguage` |
 
 ```go
 var apiErr *models.APIError
@@ -258,7 +261,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing) for the full checklist.
 
 ## Documentation
 
-- [Go SDK integration guide (KB)](https://github.com/acuencadev/translaas-all/blob/main/.docs/kb/sdk-go.md)
+- [Go SDK getting started](https://github.com/Mantelabs/translaas-all/blob/main/.docs/sdk/go.md)
 - [Implementation plan](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-go-implementation.md)
 - [HTTP API spec](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-http-api-spec.md)
 - [Porting reference](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-dotnet-porting-reference.md)
