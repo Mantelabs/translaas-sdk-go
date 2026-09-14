@@ -47,12 +47,116 @@ func TestGetEntry_NetworkError(t *testing.T) {
 	}
 
 	_, err = cli.GetEntry(context.Background(), "ui", "entry", "en")
-	var apiErr *models.APIError
-	if !errors.As(err, &apiErr) {
-		t.Fatalf("expected APIError, got %v", err)
+	var transportErr *models.TransportError
+	if !errors.As(err, &transportErr) {
+		t.Fatalf("expected TransportError, got %T (%v)", err, err)
 	}
-	if apiErr.StatusCode != http.StatusBadRequest {
-		t.Fatalf("status = %d", apiErr.StatusCode)
+	var apiErr *models.APIError
+	if errors.As(err, &apiErr) {
+		t.Fatalf("transport failure must not be APIError, got status %d", apiErr.StatusCode)
+	}
+	if !strings.Contains(err.Error(), "connection refused") {
+		t.Fatalf("message = %q", err.Error())
+	}
+}
+
+func TestGetEntry_TransportError_Table(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		err  error
+	}{
+		{name: "connection refused", err: errors.New("connection refused")},
+		{name: "dns", err: errors.New("no such host")},
+		{name: "tls", err: errors.New("tls: failed to verify certificate")},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			cause := tc.err
+			cli, err := New(Options{
+				APIKey:  "test-api-key",
+				BaseURL: "https://api.test.com",
+			}, WithHTTPClient(&http.Client{
+				Transport: roundTripperFunc(func(*http.Request) (*http.Response, error) {
+					return nil, cause
+				}),
+			}))
+			if err != nil {
+				t.Fatalf("New() error = %v", err)
+			}
+
+			_, err = cli.GetEntry(context.Background(), "ui", "entry", "en")
+			var transportErr *models.TransportError
+			if !errors.As(err, &transportErr) {
+				t.Fatalf("expected TransportError, got %T (%v)", err, err)
+			}
+			var apiErr *models.APIError
+			if errors.As(err, &apiErr) {
+				t.Fatalf("got APIError status %d", apiErr.StatusCode)
+			}
+		})
+	}
+}
+
+func TestNew_InsecureSkipVerify_ConfiguresTLS(t *testing.T) {
+	t.Parallel()
+
+	cli, err := New(Options{
+		APIKey:             "key",
+		BaseURL:            "https://api.test.com",
+		InsecureSkipVerify: true,
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	impl := cli.(*client)
+	transport, ok := impl.httpClient.Transport.(*http.Transport)
+	if !ok || transport == nil || transport.TLSClientConfig == nil {
+		t.Fatalf("expected cloned http.Transport with TLS config, got %#v", impl.httpClient.Transport)
+	}
+	if !transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("expected InsecureSkipVerify on built-in transport")
+	}
+}
+
+func TestNew_InsecureSkipVerify_WithHTTPClientUnchanged(t *testing.T) {
+	t.Parallel()
+
+	custom := &http.Client{}
+	cli, err := New(Options{
+		APIKey:             "key",
+		BaseURL:            "https://api.test.com",
+		InsecureSkipVerify: true,
+	}, WithHTTPClient(custom))
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	impl := cli.(*client)
+	if impl.httpClient != custom {
+		t.Fatal("WithHTTPClient must win over InsecureSkipVerify")
+	}
+	if custom.Transport != nil {
+		t.Fatal("must not attach a skip-verify transport to the injected client")
+	}
+}
+
+func TestNew_DefaultLanguageTrimmed(t *testing.T) {
+	t.Parallel()
+
+	cli, err := New(Options{
+		APIKey:          "key",
+		BaseURL:         "https://api.test.com",
+		DefaultLanguage: "  de  ",
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	impl := cli.(*client)
+	if impl.DefaultLanguage() != "de" {
+		t.Fatalf("DefaultLanguage = %q, want de", impl.DefaultLanguage())
 	}
 }
 

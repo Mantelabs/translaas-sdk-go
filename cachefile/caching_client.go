@@ -37,6 +37,21 @@ func NewCachingClient(inner client.Client, cache Provider, opts Options) (*Cachi
 	}, nil
 }
 
+type defaultLanguageClient interface {
+	DefaultLanguage() string
+}
+
+// DefaultLanguage forwards the inner client's default language when supported.
+func (c *CachingClient) DefaultLanguage() string {
+	if c == nil {
+		return ""
+	}
+	if dl, ok := c.inner.(defaultLanguageClient); ok {
+		return dl.DefaultLanguage()
+	}
+	return ""
+}
+
 type getEntryConfig struct {
 	number         *float64
 	parameters     map[string]string

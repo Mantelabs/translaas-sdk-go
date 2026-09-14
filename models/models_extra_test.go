@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 )
 
@@ -32,6 +33,28 @@ func TestErrorTypes_Messages(t *testing.T) {
 	miss := &OfflineCacheMissError{Message: "miss", Cause: root}
 	if miss.Error() != "miss" || miss.Unwrap() != root {
 		t.Fatalf("OfflineCacheMissError unwrap failed")
+	}
+}
+
+func TestTransportError_ErrorAndAs(t *testing.T) {
+	t.Parallel()
+
+	cause := errors.New("connection refused")
+	transportErr := &TransportError{Err: cause}
+	if !strings.Contains(transportErr.Error(), "connection refused") {
+		t.Fatalf("TransportError message = %q", transportErr.Error())
+	}
+	if !errors.Is(transportErr, cause) {
+		t.Fatal("expected Unwrap to expose cause")
+	}
+
+	var asTransport *TransportError
+	if !errors.As(transportErr, &asTransport) {
+		t.Fatal("expected errors.As TransportError")
+	}
+	var apiErr *APIError
+	if errors.As(transportErr, &apiErr) {
+		t.Fatal("TransportError must not match APIError")
 	}
 }
 

@@ -73,6 +73,10 @@ func probeAPIReachable(cfg Config) bool {
 			apiReachable = true
 			return
 		}
+		var transportErr *models.TransportError
+		if errors.As(err, &transportErr) {
+			return
+		}
 		msg := strings.ToLower(err.Error())
 		if strings.Contains(msg, "no such host") ||
 			strings.Contains(msg, "connection refused") ||

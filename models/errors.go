@@ -52,6 +52,26 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("translaas API error: status %d", e.StatusCode)
 }
 
+// TransportError wraps dial, TLS, and DNS failures. It is not an HTTP status
+// from the Translaas API — do not treat it as a 4xx/5xx response.
+type TransportError struct {
+	Err error
+}
+
+func (e *TransportError) Error() string {
+	if e == nil || e.Err == nil {
+		return "Failed to retrieve translation: transport error"
+	}
+	return fmt.Sprintf("Failed to retrieve translation: %s", e.Err.Error())
+}
+
+func (e *TransportError) Unwrap() error {
+	if e == nil {
+		return nil
+	}
+	return e.Err
+}
+
 // ConfigurationError indicates invalid SDK configuration.
 type ConfigurationError struct {
 	Message string

@@ -46,13 +46,22 @@ func (s *Service) WithPrependedProviders(providers ...language.Provider) (*Servi
 }
 
 // New constructs a Service wrapping any client.Client implementation.
-func New(c client.Client, opts Options) (*Service, error) {
+// Resolver is optional: pass nothing for service.New(c), or Options{Resolver}
+// for web/request-scoped language providers. Language resolution for T:
+// non-empty WithLang, then Resolver, then the client's DefaultLanguage.
+func New(c client.Client, opts ...Options) (*Service, error) {
 	if c == nil {
 		return nil, errors.New("service: client is required")
 	}
+	var merged Options
+	for _, o := range opts {
+		if o.Resolver != nil {
+			merged.Resolver = o.Resolver
+		}
+	}
 	return &Service{
 		client:   c,
-		resolver: opts.Resolver,
+		resolver: merged.Resolver,
 	}, nil
 }
 
@@ -82,14 +91,35 @@ func (s *Service) T(ctx context.Context, group, entry string, opts ...TOption) (
 	return s.client.GetEntry(ctx, group, entry, lang, getOpts...)
 }
 
+type defaultLanguageClient interface {
+	DefaultLanguage() string
+}
+
+func defaultLanguageFromClient(c client.Client) string {
+	if dl, ok := c.(defaultLanguageClient); ok {
+		return strings.TrimSpace(dl.DefaultLanguage())
+	}
+	return ""
+}
+
 func (s *Service) resolveLanguage(ctx context.Context, cfg tConfig) (string, error) {
 	if cfg.langSet && strings.TrimSpace(cfg.lang) != "" {
 		return cfg.lang, nil
 	}
 
-	if s.resolver == nil {
-		return "", models.ErrNoLanguage
+	if s.resolver != nil {
+		lang, err := s.resolver.Resolve(ctx)
+		if err == nil && strings.TrimSpace(lang) != "" {
+			return lang, nil
+		}
+		if err != nil && !errors.Is(err, models.ErrNoLanguage) {
+			return "", err
+		}
 	}
 
-	return s.resolver.Resolve(ctx)
+	if lang := defaultLanguageFromClient(s.client); lang != "" {
+		return lang, nil
+	}
+
+	return "", models.ErrNoLanguage
 }
