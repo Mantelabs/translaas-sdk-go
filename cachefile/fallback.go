@@ -16,6 +16,11 @@ func isNetworkOrAPIError(err error) bool {
 		return false
 	}
 
+	var transportErr *models.TransportError
+	if errors.As(err, &transportErr) {
+		return true
+	}
+
 	var apiErr *models.APIError
 	if errors.As(err, &apiErr) {
 		return true

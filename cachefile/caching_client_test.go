@@ -20,6 +20,8 @@ type mockInnerClient struct {
 
 	getEntryCalls int
 	getGroupCalls int
+	defaultLang   string
+	lastLang      string
 
 	getEntryFn        func(ctx context.Context, group, entry, lang string, opts ...client.GetEntryOption) (string, error)
 	getGroupFn        func(ctx context.Context, project, group, lang string, opts ...client.GetGroupOption) (*models.TranslationGroup, error)
@@ -28,9 +30,14 @@ type mockInnerClient struct {
 	getOfflineCacheFn func(context.Context, string, ...client.GetOfflineCacheOption) (*models.OfflineCacheDownloadResult, error)
 }
 
+func (m *mockInnerClient) DefaultLanguage() string {
+	return m.defaultLang
+}
+
 func (m *mockInnerClient) GetEntry(ctx context.Context, group, entry, lang string, opts ...client.GetEntryOption) (string, error) {
 	m.mu.Lock()
 	m.getEntryCalls++
+	m.lastLang = lang
 	fn := m.getEntryFn
 	m.mu.Unlock()
 	if fn != nil {
@@ -277,6 +284,56 @@ func TestGetEntryAPIFirstFallsBackToCache(t *testing.T) {
 	got, err := c.GetEntry(context.Background(), "common", "hello", "en")
 	if err != nil || got != "Hello from Cache" {
 		t.Fatalf("GetEntry: got=%q err=%v", got, err)
+	}
+}
+
+func TestGetEntryAPIFirstFallsBackOnTransportError(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockInnerClient{
+		getEntryFn: func(context.Context, string, string, string, ...client.GetEntryOption) (string, error) {
+			return "", &models.TransportError{Err: errors.New("connection refused")}
+		},
+	}
+	cache := newMockCacheProvider()
+	cache.groups[groupKey(testProjectID, "common", "en")] = testGroup("hello", "Hello from Cache")
+
+	c := newCachingClient(t, inner, cache, cachefile.FallbackAPIFirst)
+	got, err := c.GetEntry(context.Background(), "common", "hello", "en")
+	if err != nil || got != "Hello from Cache" {
+		t.Fatalf("GetEntry: got=%q err=%v", got, err)
+	}
+	if inner.getEntryCallCount() != 1 {
+		t.Fatalf("inner GetEntry calls = %d, want 1", inner.getEntryCallCount())
+	}
+}
+
+func TestGetEntryCacheFirstTransportErrorReturnsMiss(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockInnerClient{
+		getEntryFn: func(context.Context, string, string, string, ...client.GetEntryOption) (string, error) {
+			return "", &models.TransportError{Err: errors.New("tls: handshake failure")}
+		},
+	}
+	cache := newMockCacheProvider()
+	c := newCachingClient(t, inner, cache, cachefile.FallbackCacheFirst)
+
+	_, err := c.GetEntry(context.Background(), "common", "hello", "en")
+	var miss *models.OfflineCacheMissError
+	if !errors.As(err, &miss) {
+		t.Fatalf("expected OfflineCacheMissError, got %v", err)
+	}
+}
+
+func TestCachingClient_DefaultLanguageForwards(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockInnerClient{defaultLang: "es"}
+	cache := newMockCacheProvider()
+	c := newCachingClient(t, inner, cache, cachefile.FallbackCacheFirst)
+	if c.DefaultLanguage() != "es" {
+		t.Fatalf("DefaultLanguage = %q, want es", c.DefaultLanguage())
 	}
 }
 
