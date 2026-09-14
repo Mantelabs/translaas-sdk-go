@@ -38,6 +38,9 @@ func TestErrorScenarios_InvalidBaseURL(t *testing.T) {
 
 	_, err := c.GetEntry(context.Background(), fixtureGroup, fixtureEntry, fixtureLang)
 	require.Error(t, err)
+
+	var transportErr *models.TransportError
+	require.True(t, errors.As(err, &transportErr), "expected TransportError, got %T (%v)", err, err)
 }
 
 func TestErrorScenarios_RequestTimeout(t *testing.T) {

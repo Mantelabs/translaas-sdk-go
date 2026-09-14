@@ -201,10 +201,7 @@ func (c *client) mapTransportError(ctx context.Context, err error) error {
 			Message:    fmt.Sprintf("Request timed out after %g seconds.", seconds),
 		}
 	}
-	return &models.APIError{
-		StatusCode: http.StatusBadRequest,
-		Message:    fmt.Sprintf("Failed to retrieve translation: %s", err.Error()),
-	}
+	return &models.TransportError{Err: err}
 }
 
 func isTimeoutError(err error) bool {

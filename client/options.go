@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"net/http"
 	"strings"
 	"time"
@@ -17,6 +18,13 @@ type Options struct {
 	DefaultProjectID string
 	CacheMode        cache.Mode
 	CacheTTL         cache.TTL
+	// DefaultLanguage is the optional BCP-47 tag used by service.T when WithLang
+	// is omitted (or whitespace) and no language resolver yields a value.
+	DefaultLanguage string
+	// InsecureSkipVerify disables TLS certificate verification on the built-in
+	// HTTP client. DEV-ONLY — never enable in production. Ignored when
+	// WithHTTPClient is used; the injected client owns TLS settings.
+	InsecureSkipVerify bool
 }
 
 type clientConfig struct {
@@ -64,10 +72,20 @@ type client struct {
 	baseURL          string
 	timeout          time.Duration
 	defaultProjectID string
+	defaultLanguage  string
 	httpClient       *http.Client
 	cacheMode        cache.Mode
 	cacheTTL         cache.TTL
 	cacheProvider    cache.Provider
+}
+
+// DefaultLanguage returns the configured fallback language tag, or "" if unset.
+// It is not part of Client; service.T uses a type assertion.
+func (c *client) DefaultLanguage() string {
+	if c == nil {
+		return ""
+	}
+	return c.defaultLanguage
 }
 
 // New constructs a Client with validated options.
@@ -109,7 +127,7 @@ func New(opts Options, optFns ...Option) (Client, error) {
 
 	httpClient := cfg.httpClient
 	if httpClient == nil {
-		httpClient = &http.Client{Timeout: timeout}
+		httpClient = newHTTPClient(timeout, opts.InsecureSkipVerify)
 	}
 
 	return &client{
@@ -117,9 +135,37 @@ func New(opts Options, optFns ...Option) (Client, error) {
 		baseURL:          strings.TrimSpace(opts.BaseURL),
 		timeout:          timeout,
 		defaultProjectID: strings.TrimSpace(opts.DefaultProjectID),
+		defaultLanguage:  strings.TrimSpace(opts.DefaultLanguage),
 		httpClient:       httpClient,
 		cacheMode:        cacheMode,
 		cacheTTL:         cacheTTL,
 		cacheProvider:    cacheProvider,
 	}, nil
+}
+
+func newHTTPClient(timeout time.Duration, insecureSkipVerify bool) *http.Client {
+	httpClient := &http.Client{Timeout: timeout}
+	if !insecureSkipVerify {
+		return httpClient
+	}
+
+	transport := cloneDefaultTransport()
+	tlsCfg := transport.TLSClientConfig
+	if tlsCfg == nil {
+		tlsCfg = &tls.Config{}
+	} else {
+		tlsCfg = tlsCfg.Clone()
+	}
+	tlsCfg.InsecureSkipVerify = true
+	transport.TLSClientConfig = tlsCfg
+	httpClient.Transport = transport
+	return httpClient
+}
+
+func cloneDefaultTransport() *http.Transport {
+	base, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return &http.Transport{}
+	}
+	return base.Clone()
 }
