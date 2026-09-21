@@ -64,7 +64,15 @@ r.GET("/", func(c *gin.Context) {
 mw, _ := translaasecho.Middleware(web.DefaultMiddlewareOptions(baseSvc))
 e := echo.New()
 e.Use(mw)
+
+// Handler helper
 e.GET("/", func(c echo.Context) error {
+    text, err := translaasecho.T(c, "ui", "welcome")
+    // ...
+})
+
+// Template helper (keep TemplateFunc for html/template)
+e.GET("/page", func(c echo.Context) error {
     fn := translaasecho.TemplateFunc(c)
     text, err := fn("ui", "welcome")
     // ...
@@ -77,6 +85,10 @@ e.GET("/", func(c echo.Context) error {
 mw, _ := translaaschi.Middleware(web.DefaultMiddlewareOptions(baseSvc))
 r := chi.NewRouter()
 r.Use(mw)
+r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+    text, err := translaaschi.T(r, "ui", "welcome")
+    // ...
+})
 ```
 
 ## Security

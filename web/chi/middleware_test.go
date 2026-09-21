@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 
@@ -90,5 +91,61 @@ func TestMiddlewareInjectsService(t *testing.T) {
 
 	if inner.lastLang != "de" {
 		t.Fatalf("lastLang = %q, want de", inner.lastLang)
+	}
+}
+
+func TestMiddlewareAndT(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{}
+	resolver, err := language.NewResolver(language.NewDefaultLanguageProvider("en"))
+	if err != nil {
+		t.Fatalf("NewResolver: %v", err)
+	}
+	base, err := service.New(inner, service.Options{Resolver: resolver})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	mw, err := translaaschi.Middleware(web.DefaultMiddlewareOptions(base))
+	if err != nil {
+		t.Fatalf("Middleware: %v", err)
+	}
+
+	router := chi.NewRouter()
+	router.Use(mw)
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		text, err := translaaschi.T(r, "ui", "welcome")
+		if err != nil {
+			t.Fatalf("T: %v", err)
+		}
+		if text != "hello" {
+			t.Fatalf("text = %q, want hello", text)
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/?lang=de", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if inner.lastLang != "de" {
+		t.Fatalf("lastLang = %q, want de", inner.lastLang)
+	}
+}
+
+func TestTWithoutMiddleware(t *testing.T) {
+	t.Parallel()
+
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
+	text, err := translaaschi.T(req, "ui", "welcome")
+	if text != "" {
+		t.Fatalf("text = %q, want empty", text)
+	}
+	if err == nil {
+		t.Fatal("expected error when middleware is missing")
+	}
+	if !strings.Contains(err.Error(), "service not found") {
+		t.Fatalf("err = %v, want service not found", err)
 	}
 }
