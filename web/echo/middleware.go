@@ -46,6 +46,16 @@ func Middleware(opts web.MiddlewareOptions) (echo.MiddlewareFunc, error) {
 	}, nil
 }
 
+// T resolves a translation for the current Echo request.
+// Translation strings are not HTML-escaped; use html/template when rendering HTML.
+func T(c echo.Context, group, entry string, opts ...service.TOption) (string, error) {
+	svc, ok := web.ServiceFromContext(c.Request().Context())
+	if !ok {
+		return "", errors.New("translaasecho: service not found in context; register Middleware")
+	}
+	return svc.T(c.Request().Context(), group, entry, opts...)
+}
+
 // TemplateFunc returns a template callable bound to the Echo request context.
 func TemplateFunc(c echo.Context) func(group, entry string, opts ...service.TOption) (string, error) {
 	return func(group, entry string, opts ...service.TOption) (string, error) {

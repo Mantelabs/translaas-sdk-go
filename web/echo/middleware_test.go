@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 
@@ -90,5 +91,67 @@ func TestMiddlewareAndTemplateFunc(t *testing.T) {
 	}
 	if inner.lastLang != "de" {
 		t.Fatalf("lastLang = %q, want de", inner.lastLang)
+	}
+}
+
+func TestMiddlewareAndT(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockClient{}
+	resolver, err := language.NewResolver(language.NewDefaultLanguageProvider("en"))
+	if err != nil {
+		t.Fatalf("NewResolver: %v", err)
+	}
+	base, err := service.New(inner, service.Options{Resolver: resolver})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	e := echo.New()
+	mw, err := translaasecho.Middleware(web.DefaultMiddlewareOptions(base))
+	if err != nil {
+		t.Fatalf("Middleware: %v", err)
+	}
+	e.Use(mw)
+	e.GET("/", func(c echo.Context) error {
+		text, err := translaasecho.T(c, "ui", "welcome")
+		if err != nil {
+			return err
+		}
+		if text != "hello" {
+			t.Fatalf("text = %q, want hello", text)
+		}
+		return c.String(http.StatusOK, text)
+	})
+
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/?lang=de", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+	if inner.lastLang != "de" {
+		t.Fatalf("lastLang = %q, want de", inner.lastLang)
+	}
+}
+
+func TestTWithoutMiddleware(t *testing.T) {
+	t.Parallel()
+
+	e := echo.New()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	text, err := translaasecho.T(c, "ui", "welcome")
+	if text != "" {
+		t.Fatalf("text = %q, want empty", text)
+	}
+	if err == nil {
+		t.Fatal("expected error when middleware is missing")
+	}
+	if !strings.Contains(err.Error(), "service not found") {
+		t.Fatalf("err = %v, want service not found", err)
 	}
 }
