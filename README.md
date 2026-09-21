@@ -173,7 +173,7 @@ syncSvc, err := cachefile.NewSyncService(innerClient, fileProvider, cachefile.De
 err = syncSvc.SyncFromOfflineZip(ctx, "my-project")
 ```
 
-**Offline pluralization caveat:** simplified rule (`n == 1` → `One`, else `Other`) — not CLDR-complete. See [porting reference](https://github.com/acuencadev/translaas-all/blob/main/.docs/translaas-sdk-dotnet-porting-reference.md).
+**Offline pluralization:** cache reads select CLDR cardinal forms (`zero` / `one` / `two` / `few` / `many` / `other`) for the request `lang` via `golang.org/x/text`. The locale tag matters (`pt` vs `pt-PT`). Live `GetEntry` still sends `n` and lets the server select.
 
 Runnable sample: [`examples/go/offline`](https://github.com/acuencadev/translaas-all/tree/main/examples/go/offline).
 
@@ -212,7 +212,7 @@ Samples: [`examples/go/nethttp`](https://github.com/acuencadev/translaas-all/tre
 | `v0.2.0-beta` | — | same | In-memory `CacheMode` |
 | `v0.1.0-alpha` | — | same | Read-only client |
 
-**Known divergences:** no built-in retry policy in Go v1; simplified offline pluralization; text endpoint returns plain text (not JSON).
+**Known divergences:** no built-in retry policy in Go v1; text endpoint returns plain text (not JSON).
 
 ## Development
 

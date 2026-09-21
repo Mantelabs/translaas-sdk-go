@@ -9,7 +9,8 @@ import (
 	"github.com/Mantelabs/translaas-sdk-go/models"
 )
 
-// Offline pluralization uses simplified rules (1 → One, else Other), not full CLDR.
+// Offline pluralization uses CLDR cardinal rules via golang.org/x/text
+// (zero / one / two / few / many / other) for the request lang tag.
 // Live API evaluates server-side plural rules via the n query parameter.
 
 var placeholderPattern = regexp.MustCompile(`\{([a-zA-Z0-9_]+)\}`)
@@ -18,6 +19,7 @@ func resolveEntryFromGroup(
 	group *models.TranslationGroup,
 	entry string,
 	number *float64,
+	lang string,
 	params map[string]string,
 ) (string, bool) {
 	if group == nil {
@@ -25,7 +27,7 @@ func resolveEntryFromGroup(
 	}
 
 	if group.HasPluralForms(entry) {
-		category := determinePluralCategory(number)
+		category := determinePluralCategory(number, lang)
 		form, ok := group.GetPluralForm(entry, category)
 		if !ok && category != models.PluralOther {
 			form, ok = group.GetPluralForm(entry, models.PluralOther)
@@ -43,14 +45,11 @@ func resolveEntryFromGroup(
 	return substituteParameters(value, number, params), true
 }
 
-func determinePluralCategory(number *float64) models.PluralCategory {
+func determinePluralCategory(number *float64, lang string) models.PluralCategory {
 	if number == nil {
 		return models.PluralOther
 	}
-	if *number == 1 {
-		return models.PluralOne
-	}
-	return models.PluralOther
+	return matchCardinalCategory(languageTagForPlural(lang), *number)
 }
 
 func substituteParameters(template string, number *float64, params map[string]string) string {
