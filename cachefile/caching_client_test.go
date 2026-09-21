@@ -370,6 +370,39 @@ func TestGetEntryCacheOnlyMiss(t *testing.T) {
 	}
 }
 
+func TestGetEntryCacheOnlyPluralLangWiring(t *testing.T) {
+	t.Parallel()
+
+	inner := &mockInnerClient{}
+	cache := newMockCacheProvider()
+	cache.groups[groupKey(testProjectID, "messages", "fr")] = &models.TranslationGroup{
+		Entries: map[string]json.RawMessage{
+			"items": json.RawMessage(`{"One":"FR_ONE","Other":"FR_OTHER"}`),
+		},
+	}
+	cache.groups[groupKey(testProjectID, "messages", "en")] = &models.TranslationGroup{
+		Entries: map[string]json.RawMessage{
+			"items": json.RawMessage(`{"One":"EN_ONE","Other":"EN_OTHER"}`),
+		},
+	}
+
+	c := newCachingClient(t, inner, cache, cachefile.FallbackCacheOnly)
+
+	fr, err := c.GetEntry(context.Background(), "messages", "items", "fr", client.WithNumber(0))
+	if err != nil || fr != "FR_ONE" {
+		t.Fatalf("fr n=0: got=%q err=%v", fr, err)
+	}
+
+	en, err := c.GetEntry(context.Background(), "messages", "items", "en", client.WithNumber(0))
+	if err != nil || en != "EN_OTHER" {
+		t.Fatalf("en n=0: got=%q err=%v", en, err)
+	}
+
+	if inner.getEntryCallCount() != 0 {
+		t.Fatalf("inner GetEntry calls = %d, want 0", inner.getEntryCallCount())
+	}
+}
+
 func TestGetEntryCacheOnlyParameterSubstitution(t *testing.T) {
 	t.Parallel()
 

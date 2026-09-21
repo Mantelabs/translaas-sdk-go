@@ -7,7 +7,8 @@
 // promoting disk hits into memory and writing through to both tiers on save.
 //
 // CachingClient decorates client.Client with offline fallback modes (CacheFirst,
-// APIFirst, CacheOnly), offline entry resolution, and cache warming after API reads.
+// APIFirst, CacheOnly), offline entry resolution (CLDR cardinal plurals for the
+// request lang via golang.org/x/text), and cache warming after API reads.
 //
 // SyncService pulls translations from the API into a Provider using the inner client
 // (not CachingClient) and supports optional background sync on a ticker.

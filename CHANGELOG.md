@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Offline / file-cache `GetEntry` plural selection uses CLDR cardinal rules for the request locale via `golang.org/x/text` (`zero` / `one` / `two` / `few` / `many` / `other`), replacing the language-agnostic `n == 1` heuristic. Missing selected forms still fall back to `other`. Live HTTP `GetEntry` is unchanged.
 - Connect / TLS / DNS failures are no longer mapped to `*models.APIError` with HTTP **400**. Timeouts remain **408**. Callers that assumed every `GetEntry` error was `*APIError` should also handle `*models.TransportError`.
 
 ### Documentation

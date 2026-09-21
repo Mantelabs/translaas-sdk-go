@@ -154,7 +154,7 @@ func (c *CachingClient) getEntryFromCache(
 	if cachedGroup == nil {
 		return "", false, nil
 	}
-	value, ok := resolveEntryFromGroup(cachedGroup, entry, cfg.number, cfg.parameters)
+	value, ok := resolveEntryFromGroup(cachedGroup, entry, cfg.number, lang, cfg.parameters)
 	return value, ok, nil
 }
 
