@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Mantelabs/translaas-sdk-go/service"
 	"github.com/Mantelabs/translaas-sdk-go/web"
 	"github.com/go-chi/chi/v5"
 )
@@ -28,4 +29,14 @@ func Middleware(opts web.MiddlewareOptions) (func(http.Handler) http.Handler, er
 	}
 
 	return web.Middleware(effective)
+}
+
+// T resolves a translation for the current chi request.
+// Translation strings are not HTML-escaped; use html/template when rendering HTML.
+func T(r *http.Request, group, entry string, opts ...service.TOption) (string, error) {
+	svc, ok := web.ServiceFromContext(r.Context())
+	if !ok {
+		return "", errors.New("translaaschi: service not found in context; register Middleware")
+	}
+	return svc.T(r.Context(), group, entry, opts...)
 }
