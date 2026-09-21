@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `translaaschi.T` — chi handler helper matching `translaasgin.T`.
+- `translaasecho.T` — Echo handler helper (alongside existing `TemplateFunc`).
 - `client.Options.DefaultLanguage` — fallback language for `service.T` when `WithLang` is omitted and no resolver yields a value.
 - `client.Options.InsecureSkipVerify` — **dev-only** TLS skip-verify on the built-in HTTP client (ignored when `WithHTTPClient` is set).
 - `service.New(c)` — resolver is optional; `New(c, service.Options{Resolver: r})` is unchanged.
