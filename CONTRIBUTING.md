@@ -78,7 +78,7 @@ Reference GitHub issues in the footer: `Closes #123`.
 This module uses [Semantic Versioning](https://semver.org/). Consumers install via:
 
 ```bash
-go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta
+go get github.com/Mantelabs/translaas-sdk-go@v0.5.0
 go get github.com/Mantelabs/translaas-sdk-go@latest
 ```
 
@@ -91,13 +91,13 @@ Maintainers cut releases from `main` after MVP slices land. Integration tests ar
 ### Checklist
 
 1. Ensure `[Unreleased]` in `CHANGELOG.md` lists all user-visible changes for the release.
-2. Move those entries into a dated section: `## [0.4.0-beta] - YYYY-MM-DD`.
+2. Move those entries into a dated section: `## [0.5.0] - YYYY-MM-DD`.
 3. Merge the changelog PR; wait for CI on `main` to pass.
 4. (Optional) Run **Integration Tests** workflow with `TRANSLAAS_API_KEY` for a live smoke test.
 5. Create and push an annotated tag (triggers `.github/workflows/release.yml`):
 
    ```bash
-   bash scripts/create-release-tag.sh 0.4.0-beta
+   bash scripts/create-release-tag.sh 0.5.0
    bash scripts/create-release-tag.sh --dry-run   # validate only
    ```
 
@@ -107,7 +107,7 @@ Maintainers cut releases from `main` after MVP slices land. Integration tests ar
 7. Verify consumers can resolve the module:
 
    ```bash
-   go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta
+   go get github.com/Mantelabs/translaas-sdk-go@v0.5.0
    ```
 
    Indexing on [pkg.go.dev](https://pkg.go.dev/github.com/Mantelabs/translaas-sdk-go) may take a few minutes after the tag is pushed.

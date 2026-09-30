@@ -6,7 +6,7 @@ Part of the [translaas-all](https://github.com/acuencadev/translaas-all) umbrell
 
 ## Status
 
-MVP complete (milestones **M1–M4**): HTTP client, in-memory cache, offline file cache, sync service, `service.T()`, and optional `web` middleware. Current release: **`v0.4.0-beta`**. Track work via [GitHub Issues](https://github.com/Mantelabs/translaas-sdk-go/issues) and semver tags.
+MVP complete (milestones **M1–M4**): HTTP client, in-memory cache, offline file cache, sync service, `service.T()`, and optional `web` middleware. Current release: **`v0.5.0`**. Track work via [GitHub Issues](https://github.com/Mantelabs/translaas-sdk-go/issues) and semver tags.
 
 Runnable sample apps live in the meta-repo under [`examples/go/`](https://github.com/acuencadev/translaas-all/tree/main/examples/go) — not in this library repository.
 
@@ -19,10 +19,10 @@ Runnable sample apps live in the meta-repo under [`examples/go/`](https://github
 Pin to a semver tag (recommended for production):
 
 ```bash
-go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta
+go get github.com/Mantelabs/translaas-sdk-go@v0.5.0
 ```
 
-Track the latest pre-release on `main`:
+Track commits on `main` after the latest tag:
 
 ```bash
 go get github.com/Mantelabs/translaas-sdk-go@latest
@@ -207,7 +207,8 @@ Samples: [`examples/go/nethttp`](https://github.com/acuencadev/translaas-all/tre
 
 | Go SDK | .NET SDK | Delivery API | Notes |
 |--------|----------|--------------|-------|
-| `v0.4.0-beta` (current) | `v0.4.1-beta` | `/sdk/v1` + `/api/v1/validate` | M4 parity: client, cache, offline, `T()`, web |
+| `v0.5.0` (current) | `0.5.0` | `/sdk/v1` + `/api/v1/validate` | CLDR offline plurals, transport errors, convenience API |
+| `v0.4.0-beta` | `v0.4.1-beta` | `/sdk/v1` + `/api/v1/validate` | M4 parity: client, cache, offline, `T()`, web |
 | `v0.3.0-beta` | — | same | Offline + sync |
 | `v0.2.0-beta` | — | same | In-memory `CacheMode` |
 | `v0.1.0-alpha` | — | same | Read-only client |
@@ -251,11 +252,11 @@ Tag-driven releases use `.github/workflows/release.yml` — the same quality bar
 5. Create and push the tag (triggers the release workflow):
 
    ```bash
-   bash scripts/create-release-tag.sh 0.4.0-beta
+   bash scripts/create-release-tag.sh 0.5.0
    # or: bash scripts/create-release-tag.sh --dry-run
    ```
 
-6. Verify the [GitHub Release](https://github.com/Mantelabs/translaas-sdk-go/releases) notes and module proxy indexing (`go get github.com/Mantelabs/translaas-sdk-go@v0.4.0-beta`).
+6. Verify the [GitHub Release](https://github.com/Mantelabs/translaas-sdk-go/releases) notes and module proxy indexing (`go get github.com/Mantelabs/translaas-sdk-go@v0.5.0`).
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing) for the full checklist.
 
