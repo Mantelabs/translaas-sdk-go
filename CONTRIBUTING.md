@@ -5,7 +5,7 @@ Thank you for contributing to the Translaas Go SDK. This repository implements t
 ## Getting started
 
 1. Fork and clone the repository.
-2. Install **Go 1.22+** (CI uses 1.23.x).
+2. Install **Go 1.26+** (CI uses 1.26.x).
 3. Install [golangci-lint](https://golangci-lint.run/welcome/install/) for local linting.
 4. Create a feature branch: `feature/short-description` or `fix/short-description`.
 

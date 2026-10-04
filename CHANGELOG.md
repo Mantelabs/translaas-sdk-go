@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Minimum Go version is **1.26**. `golang.org/x/text` **v0.42.0** requires it.
+
 ## [0.5.0] - 2026-09-30
 
 ### Added

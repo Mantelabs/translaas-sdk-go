@@ -12,7 +12,7 @@ Runnable sample apps live in the meta-repo under [`examples/go/`](https://github
 
 ## Requirements
 
-- Go **1.22+** (module declares `toolchain go1.23.x`)
+- Go **1.26+** (module declares `go 1.26.0`)
 
 ## Installation
 

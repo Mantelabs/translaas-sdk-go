@@ -1,6 +1,6 @@
 module github.com/Mantelabs/translaas-sdk-go/web/echo
 
-go 1.23
+go 1.26.0
 
 require (
 	github.com/Mantelabs/translaas-sdk-go v0.0.0
@@ -16,7 +16,7 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 )
 
 replace github.com/Mantelabs/translaas-sdk-go => ../..
